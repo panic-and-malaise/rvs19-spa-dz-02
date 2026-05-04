@@ -1,3 +1,6 @@
+build/
+.cache/
+*.idx
 
 # Created by https://www.gitignore.io/api/visualstudio
 
