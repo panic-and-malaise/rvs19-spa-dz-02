@@ -1,12 +1,13 @@
 #include "cell.hpp"
 #include <unordered_set>
 
-Cell::Cell(const int32_t x_, const int32_t y_) {
+Cell::Cell(const int32_t x_, const int32_t y_, sf::Color color_) {
 	position.x = x_;
 	position.y = y_;
+	color = std::move(color_);
 }
 
-Cell::Cell(const Vec2i vec) : position(std::move(vec)) {}
+Cell::Cell(const Vec2i vec, sf::Color color_) : position(std::move(vec)), color(std::move(color_)) {}
 
 Cell::Cell(const sf::Vector2i vec) {
 	position.x = vec.x;
@@ -33,7 +34,7 @@ void Cell::draw_cells(sf::RenderTarget &target, const std::unordered_set<Cell, C
 		float x = cell.position.x;
 		float y = cell.position.y;
 
-		sf::Color color = sf::Color::White;
+		sf::Color color = cell.get_color();
 
 		constexpr int cell_size = 1;
 

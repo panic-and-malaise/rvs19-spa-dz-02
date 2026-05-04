@@ -3,19 +3,6 @@
 #include <cstdint>
 #include <random>
 
-game_of_life::game_of_life() {
-	std::mt19937 rng(std::random_device{}());
-	std::uniform_int_distribution<int> dist(0, game_of_life::DEFAULT_ENCLOSURE_SIZE);
-
-	// Initialize program with some default cells
-	for (int i = 0; i < game_of_life::STARTING_CELL_NUMBER; i++) {
-		int x = dist(rng);
-		int y = dist(rng);
-
-		insert_cell({x, y});
-	}
-}
-
 game_of_life::game_of_life(uint32_t seed, size_t starting_cells, size_t enclosure_size) {
 	std::mt19937 rng(seed);
 	std::uniform_int_distribution<int> dist(0, enclosure_size ? enclosure_size : starting_cells / 100);
@@ -28,6 +15,9 @@ game_of_life::game_of_life(uint32_t seed, size_t starting_cells, size_t enclosur
 		insert_cell({x, y});
 	}
 }
+
+game_of_life::game_of_life() : game_of_life(std::random_device{}(), STARTING_CELL_NUMBER, DEFAULT_ENCLOSURE_SIZE) {}
+
 
 void game_of_life::step() {
 	cells_active = std::move(cells_active_next);
@@ -95,5 +85,5 @@ inline size_t game_of_life::get_cell_neighbors(const Cell& cell) {
 void game_of_life::update_cell_neighbors(const Cell& cell) {
 	for (int y = -1; y <= 1; y++)
 		for (int x = -1; x <= 1; x++)
-			cells_potential_next.insert({cell.get_position().x + x, cell.get_position().y + y});
+			cells_potential_next.insert({cell.get_position().x + x, cell.get_position().y + y, cell.get_color()});
 }

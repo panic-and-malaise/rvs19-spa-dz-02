@@ -319,8 +319,7 @@ int main (int argc, char *argv[]) {
 			for (int dy = -BRUSH_SIZE / 2; dy <= BRUSH_SIZE / 2; dy++) {
 				for (int dx = -BRUSH_SIZE / 2; dx <= BRUSH_SIZE / 2; dx++) {
 					Vec2i cell = { center.x + dx, center.y + dy };
-					// cells_to_paint.emplace(center.x + dx, center.y + dy );
-					simulation.insert_cell(cell);
+					simulation.insert_cell({cell, sf::Color::Red});
 				}
 			}
 		}

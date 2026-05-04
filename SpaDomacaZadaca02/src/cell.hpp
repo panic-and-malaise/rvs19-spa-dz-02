@@ -2,10 +2,10 @@
 #define CELL_H
 
 #include "vec2i.hpp"
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <unordered_set>
-#include <vector>
 
 class Cell {
 public:
@@ -18,11 +18,8 @@ public:
 	friend class CellHash;
 
 	Cell() = default;
-
-	Cell(const int32_t x_, const int32_t y_);
-
-	Cell(const Vec2i vec);
-	
+	Cell(const int32_t x_, const int32_t y_, sf::Color color_ = sf::Color::White);
+	Cell(const Vec2i vec, sf::Color color_ = sf::Color::White);
 	Cell(const sf::Vector2i vec);
 	Cell(const sf::Vector2f vec);
 
@@ -30,9 +27,18 @@ public:
 
 	Vec2i get_position() const;
 
+	void set_color(sf::Color color_) {
+		color = std::move(color_);
+	}
+
+	sf::Color get_color() const {
+		return color;
+	}
+
 	static void draw_cells(sf::RenderTarget &target, const std::unordered_set<Cell, CellHash> &cells);
 private:
 	Vec2i position{};
+	sf::Color color = sf::Color::White;
 };
 
 #endif // !CELL_H
