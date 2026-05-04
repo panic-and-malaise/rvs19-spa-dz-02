@@ -169,6 +169,7 @@ int main (int argc, char *argv[]) {
 	sf_text.setOrigin(sf_text.getLocalBounds().width / 2, sf_text.getLocalBounds().height / 2);
 
 	Animation::AnimationMatrix animation_matrix;
+	size_t animation_matrix_index = 0;
 
 	Animation::Animation text_left_right(sf_text, false);
 	text_left_right.put_keyframe(3.0f, {sf_text.getPosition().x + 200, sf_text.getPosition().y}, 0.f, {1.f, 1.f}, Animation::Interpolation::QUADRATIC);
@@ -178,28 +179,35 @@ int main (int argc, char *argv[]) {
 
 	Animation::Animation text_animation(sf_text, true);
 	Animation::Typewriter typewriter(sf_text, "Welcome to Cellbi! :)", 10.0f, "");
-	typewriter.set_delay(100);
 
 	text_animation.put_keyframe(1.5f, sf_text.getPosition(), -30.0f, {2.0f, 2.0f}, Animation::Interpolation::EASE_OUT);
 	text_animation.copy_first_keyframe_to_last(2.0f);
 
-	animation_matrix.push_and_create(text_left_right, 0);
-	animation_matrix.push_and_create(text_idle, 0);
-	animation_matrix.push_and_create(text_animation, 0);
+	animation_matrix.push_and_create(text_left_right, animation_matrix_index);
+	animation_matrix.push_and_create(text_idle, animation_matrix_index);
+	animation_matrix.push_and_create(text_animation, animation_matrix_index++);
 
 	// ----------
 
 	Animation::TextDynamic dynamic_text(font);
 	dynamic_text.set_position({400, 200});
 
-	dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello", "Hello :)", "testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
+	dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
 
-	Animation::Animation anim4(dynamic_text.get_segment(2).text, true);
+	auto *anim_curr = &dynamic_text.get_segment(2).text;
 
-	anim4.put_keyframe(1.0f, dynamic_text.get_segment(2).text.getPosition(), -30.0f, {2.0f, 2.0f}, Animation::Interpolation::EASE_OUT);
+	Animation::Animation anim4(*anim_curr, true);
+
+	anim4.put_keyframe(1.0f, {}, -30.0f, {2.0f, 2.0f}, Animation::Interpolation::EASE_OUT);
 	anim4.copy_first_keyframe_to_last(1.5f);
 
-	// animation_matrix.push_and_create(anim4, 1);
+	anim_curr = &dynamic_text.get_segment(6).text;
+	Animation::Animation anim5(*anim_curr, true);
+	anim5.put_keyframe(.1f, {}, -360.f, {1.0f, 1.0f}, Animation::Interpolation::LINEAR);
+	anim5.copy_first_keyframe_to_last(.1f);
+
+	animation_matrix.push_and_create(anim4, animation_matrix_index++);
+	animation_matrix.push_and_create(anim5, animation_matrix_index++);
 
 	// ---------- MAIN LOOP ----------
 	while (window.isOpen()) {
