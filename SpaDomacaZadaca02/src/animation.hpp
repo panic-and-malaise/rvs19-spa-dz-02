@@ -195,6 +195,14 @@ struct TextSegment {
 	sf::Text text;
 	size_t start_index = 0;
 	size_t length = 0;
+
+	void center_text_origin() {
+		text.setOrigin(text.getLocalBounds().width / 2, text.getLocalBounds().height / 2);
+	}
+
+	void text_origin_to_corner() {
+		text.setOrigin(0.f, 0.f);
+	}
 };
 
 class TextDynamic {
@@ -229,9 +237,14 @@ public:
 		text_object.setFont(font);
 		text_object.setCharacterSize(base.getCharacterSize());
 		text_object.setFillColor(base.getFillColor());
-		text_object.setOrigin(text_object.getLocalBounds().width / 2, text_object.getLocalBounds().height / 2);
 
 		push_text_segment(text_object);
+	}
+
+
+	template<typename... Args> // Variadic function, C++17
+	void push_strings(const Args&... strings) {
+		(push_string(strings), ...);
 	}
 
 	void draw(sf::RenderTarget &target) {
@@ -239,17 +252,16 @@ public:
 		float prev_height = 0.0f;
 
 		for (auto& segment : segments) {
-			// std::cout << "Drawing segment: " << segment.text.getString().toAnsiString() << "\n";
 			if (segment.text.getString().toAnsiString().front() == '\n') {
 				prev_width = 0.0f;
-				prev_height += segment.text.getLocalBounds().height + segment.text.getLineSpacing();
 
-				segment.text.setPosition(position.x, position.y + segment.text.getLineSpacing() * 7);
+				segment.text.setPosition(position.x, position.y + prev_height);
+				prev_height += segment.text.getLocalBounds().height + segment.text.getLineSpacing() - 1;
 			} else {
 				segment.text.setPosition(position.x + prev_width, position.y + prev_height);
 			}
 			target.draw(segment.text);
-			prev_width += segment.text.getLocalBounds().width;
+			prev_width += segment.text.getLocalBounds().width + segment.text.getLetterSpacing();
 		}
 	}
 private:

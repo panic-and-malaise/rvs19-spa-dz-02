@@ -177,8 +177,8 @@ int main (int argc, char *argv[]) {
 	text_idle.put_keyframe_idle(2.0f);
 
 	Animation::Animation text_animation(sf_text, true);
-	Animation::Typewriter typewriter(sf_text, "Welcome to Cellbi! :)", 10.0f, "|");
-	typewriter.set_delay(5);
+	Animation::Typewriter typewriter(sf_text, "Welcome to Cellbi! :)", 10.0f, "");
+	typewriter.set_delay(100);
 
 	text_animation.put_keyframe(1.5f, sf_text.getPosition(), -30.0f, {2.0f, 2.0f}, Animation::Interpolation::EASE_OUT);
 	text_animation.copy_first_keyframe_to_last(2.0f);
@@ -192,17 +192,14 @@ int main (int argc, char *argv[]) {
 	Animation::TextDynamic dynamic_text(font);
 	dynamic_text.set_position({400, 200});
 
-	dynamic_text.push_string("Hello ");
-	dynamic_text.push_string("world!");
-	dynamic_text.push_string("\nHello, ");
-	dynamic_text.push_string("Hello :)");
+	dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello", "Hello :)", "testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
 
 	Animation::Animation anim4(dynamic_text.get_segment(2).text, true);
 
 	anim4.put_keyframe(1.0f, dynamic_text.get_segment(2).text.getPosition(), -30.0f, {2.0f, 2.0f}, Animation::Interpolation::EASE_OUT);
 	anim4.copy_first_keyframe_to_last(1.5f);
 
-	animation_matrix.push_and_create(anim4, 1);
+	// animation_matrix.push_and_create(anim4, 1);
 
 	// ---------- MAIN LOOP ----------
 	while (window.isOpen()) {
