@@ -2,6 +2,7 @@
 #define ANIMATION_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Text.hpp>
@@ -10,6 +11,8 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <queue>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -97,6 +100,46 @@ private:
 	bool looping = false;
 };
 
+class AnimationQueue {
+public:
+	void push(const Animation &anim) {
+		animation_queue.push(anim);
+	}
+
+	void pop() {
+		animation_queue.pop();
+	}
+
+	Animation& front() {
+		return animation_queue.front();
+	}
+
+	bool empty() const {
+		return animation_queue.empty();
+	}
+private:
+	std::queue<Animation> animation_queue{};
+};
+
+class AnimationMatrix {
+public:
+	void push_and_create(const Animation &anim, const size_t index) {
+		if (index >= animations.size()) animations.resize(index + 1);
+		animations[index].push(anim);
+	}
+
+	AnimationQueue& at(const size_t index) {
+		if (index >= animations.size()) throw std::out_of_range("AnimationQueue not initialized!");
+		return animations[index];
+	}
+
+	std::vector<AnimationQueue>& get_animations() {
+		return animations;
+	}
+private:
+	std::vector<AnimationQueue> animations{};
+};
+
 class Typewriter {
 public:
 	Typewriter(sf::Text &text_field_, std::string text_, const float speed = 1.0f, std::string cursor_ = "")
@@ -113,10 +156,18 @@ public:
 		cursor_remain_after_end = remain;
 	}
 
+	void set_delay(const float delay_) {
+		delay = delay_;
+	}
+
 	void update(float delta_time) {
 		if (!cursor_remain_after_end && text_field.getString() == text) return;
 
-		frame_accumulator += delta_time;
+		if (delay > 0.0f) {
+			delay -= delta_time;
+		} else {
+			frame_accumulator += delta_time;
+		}
 
 		size_t num_chars = frame_accumulator * chars_per_second;
 		num_chars = std::min(num_chars, text.size());
@@ -133,6 +184,7 @@ private:
 
 	float frame_accumulator = 0.0f;
 	float chars_per_second = 1.0f;
+	float delay = -1.0f;
 
 	std::string cursor = "|";
 	bool show_cursor = false;
@@ -147,8 +199,18 @@ struct TextSegment {
 
 class TextDynamic {
 public:
+	TextDynamic(const sf::Font &font_, sf::Text base_ = {}) : font(font_), base(std::move(base_)) {}
+
+	sf::Text& get_text_template() {
+		return base;
+	}
+
 	void set_position(sf::Vector2f vec) {
 		position = std::move(vec);
+	}
+
+	TextSegment& get_segment(size_t index) {
+		return segments.at(index);
 	}
 
 	void push_text_segment(const sf::Text& text) {
@@ -157,23 +219,42 @@ public:
 			segments.empty() ? 0 : segments.back().start_index + segments.back().length - 1,
 			text.getString().getSize()
 		};
-		segments.emplace_back(segment);
+		segments.push_back(segment);
 	}
 
-	void update(float delta_time) {
-		
+	void push_string(const std::string &str) {
+		sf::Text text_object;
+
+		text_object.setString(str);
+		text_object.setFont(font);
+		text_object.setCharacterSize(base.getCharacterSize());
+		text_object.setFillColor(base.getFillColor());
+		text_object.setOrigin(text_object.getLocalBounds().width / 2, text_object.getLocalBounds().height / 2);
+
+		push_text_segment(text_object);
 	}
 
 	void draw(sf::RenderTarget &target) {
 		float prev_width = 0.0f;
+		float prev_height = 0.0f;
+
 		for (auto& segment : segments) {
 			// std::cout << "Drawing segment: " << segment.text.getString().toAnsiString() << "\n";
-			segment.text.setPosition(position.x + prev_width, position.y);
+			if (segment.text.getString().toAnsiString().front() == '\n') {
+				prev_width = 0.0f;
+				prev_height += segment.text.getLocalBounds().height + segment.text.getLineSpacing();
+
+				segment.text.setPosition(position.x, position.y + segment.text.getLineSpacing() * 7);
+			} else {
+				segment.text.setPosition(position.x + prev_width, position.y + prev_height);
+			}
 			target.draw(segment.text);
 			prev_width += segment.text.getLocalBounds().width;
 		}
 	}
 private:
+	sf::Font font;
+	sf::Text base; // Reference for construction of text objects
 	std::vector<TextSegment> segments;
 	sf::Vector2f position{};
 };

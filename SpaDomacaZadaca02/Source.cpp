@@ -168,48 +168,41 @@ int main (int argc, char *argv[]) {
 	sf_text.setFillColor(sf::Color::White);
 	sf_text.setOrigin(sf_text.getLocalBounds().width / 2, sf_text.getLocalBounds().height / 2);
 
-	std::queue<Animation::Animation> animation_queue;
+	Animation::AnimationMatrix animation_matrix;
 
 	Animation::Animation text_left_right(sf_text, false);
-	text_left_right.put_keyframe(3.0f, {sf_text.getPosition().x + 200, sf_text.getPosition().y}, 0.f, {1.f, 1.f}, Animation::Interpolation::QUADRATIC );
+	text_left_right.put_keyframe(3.0f, {sf_text.getPosition().x + 200, sf_text.getPosition().y}, 0.f, {1.f, 1.f}, Animation::Interpolation::QUADRATIC);
 
 	Animation::Animation text_idle(sf_text, false);
 	text_idle.put_keyframe_idle(2.0f);
 
 	Animation::Animation text_animation(sf_text, true);
 	Animation::Typewriter typewriter(sf_text, "Welcome to Cellbi! :)", 10.0f, "|");
+	typewriter.set_delay(5);
 
 	text_animation.put_keyframe(1.5f, sf_text.getPosition(), -30.0f, {2.0f, 2.0f}, Animation::Interpolation::EASE_OUT);
 	text_animation.copy_first_keyframe_to_last(2.0f);
 
-	animation_queue.push(text_left_right);
-	animation_queue.push(text_idle);
-	animation_queue.push(text_animation);
+	animation_matrix.push_and_create(text_left_right, 0);
+	animation_matrix.push_and_create(text_idle, 0);
+	animation_matrix.push_and_create(text_animation, 0);
 
-	Animation::TextDynamic dynamic_text;
+	// ----------
+
+	Animation::TextDynamic dynamic_text(font);
 	dynamic_text.set_position({400, 200});
 
-	sf::Text txt_arr[4];
-	std::string strings[] = {
-		"Hello ",
-		"world!",
-		" Hello, ",
-		"Hello :)"
-	};
+	dynamic_text.push_string("Hello ");
+	dynamic_text.push_string("world!");
+	dynamic_text.push_string("\nHello, ");
+	dynamic_text.push_string("Hello :)");
 
-	for (size_t i = 0; i < 4; i++) {
-		sf::Text &txt = txt_arr[i];
+	Animation::Animation anim4(dynamic_text.get_segment(2).text, true);
 
-		txt.setString(strings[i]);
-		txt.setFont(font);
-		txt.setCharacterSize(24);
-		txt.setFillColor(sf::Color::White);
-		txt.setOrigin(txt.getLocalBounds().width / 2, txt.getLocalBounds().height / 2);
+	anim4.put_keyframe(1.0f, dynamic_text.get_segment(2).text.getPosition(), -30.0f, {2.0f, 2.0f}, Animation::Interpolation::EASE_OUT);
+	anim4.copy_first_keyframe_to_last(1.5f);
 
-		dynamic_text.push_text_segment(txt);
-	}
-
-	dynamic_text.push_text_segment(sf_text);
+	animation_matrix.push_and_create(anim4, 1);
 
 	// ---------- MAIN LOOP ----------
 	while (window.isOpen()) {
@@ -347,7 +340,7 @@ int main (int argc, char *argv[]) {
 		}
 
 		window.draw(sf_text);
-		// dynamic_text.draw(window);
+		dynamic_text.draw(window);
 
 		// ----- UPDATE CELLS -----
 		// Hopefully lets UI render smoothly first...
@@ -416,10 +409,12 @@ int main (int argc, char *argv[]) {
 		float delta_time = time_elapsed.asSeconds();
 		counter += time_elapsed;
 
-		if (animation_queue.front().is_finished())
-			animation_queue.pop();
-		if (!animation_queue.empty())
-			animation_queue.front().update(delta_time);
+		for (auto &animation_queue : animation_matrix.get_animations()) {
+			if (animation_queue.front().is_finished())
+				animation_queue.pop();
+			if (!animation_queue.empty())
+				animation_queue.front().update(delta_time);
+		}
 
 		// text_animation.update(delta_time);
 		typewriter.update(delta_time);

@@ -46,6 +46,10 @@ void Animation::Animation::apply_keyframe_interp(Keyframe &prev, Keyframe &next,
 
 	float pos_x = prev.position.x + (next.position.x - prev.position.x) * t;
 	float pos_y = prev.position.y + (next.position.y - prev.position.y) * t;
+	if (next.position.x < 0.0f)
+		pos_x = object.getPosition().x;
+	if (next.position.y < 0.0f)
+		pos_x = object.getPosition().y;
 
 	float rotation = prev.rotation + (next.rotation - prev.rotation) * t;
 
