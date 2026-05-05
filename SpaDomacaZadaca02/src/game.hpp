@@ -15,10 +15,13 @@
 #include <SFML/Window/Window.hpp>
 
 #include "animation.hpp"
+#include "animation_matrix.hpp"
 #include "button.hpp"
 #include "cursor.hpp"
 #include "game_of_life.hpp"
 #include "pattern.hpp"
+#include "text_dynamic.hpp"
+#include "typewriter.hpp"
 #include "util.hpp"
 
 namespace malaise {
@@ -87,7 +90,7 @@ private:
 	sf::View world_view;
 	sf::View ui_view;
 
-	// ---------- WINDOW CONSTANTS ----------;
+	// ------------ WINDOW CONSTANTS ------------;
 	static constexpr size_t WINDOW_WIDTH = 800;
 	static constexpr size_t WINDOW_HEIGHT = 800;
 
@@ -108,7 +111,7 @@ private:
 	std::mt19937 rng;
 
 	// ---------- GAME OF LIFE SIMULATION ----------;
-	game_of_life simulation;
+	malaise::game_of_life simulation;
 
 	// ----- CLOCKS AND COUNTERS -----;
 	sf::Clock render_clock;
@@ -129,20 +132,21 @@ private:
 
 	// ---------- FONTS ----------;
 	sf::Font main_font;
+	sf::Font mario_font;
 
-	// ----- OBJECT VECTORS -----;
+	// --------------- OBJECT VECTORS ---------------;
 	malaise::animation::AnimationMatrix animation_matrix;
 	std::vector<malaise::animation::Typewriter> typewriters;
 
 	std::vector<sf::Text> text_boxes;
-	std::vector<malaise::animation::TextDynamic> dynamic_text_objects;
+	std::vector<malaise::text::TextDynamic> dynamic_text_objects;
 
-	std::vector<Button> buttons;
-	std::unordered_map<std::string, Pattern> patterns;
+	std::vector<malaise::Button> buttons;
+	std::unordered_map<std::string, malaise::Pattern> patterns;
 
-	// ----- CURRENT POINTERS -----;
-	Pattern *pattern_selected = nullptr;
-	Cursor cursor{};
+	// ---------- CURRENT POINTERS ----------;
+	malaise::Pattern *pattern_selected = nullptr;
+	malaise::Cursor cursor{};
 
 
 	// --------------- PRIVATE METHODS ---------------;
@@ -156,8 +160,8 @@ private:
 	void init_simulation(int argc, char *argv[]) {
 		// ----- SEED AND SIMULATION -----
 		uint32_t seed = rng();
-		size_t cells = game_of_life::STARTING_CELL_NUMBER;
-		size_t size = game_of_life::DEFAULT_ENCLOSURE_SIZE;
+		size_t cells = malaise::game_of_life::STARTING_CELL_NUMBER;
+		size_t size = malaise::game_of_life::DEFAULT_ENCLOSURE_SIZE;
 
 		if (argc > 1) { // Set seed based on program parameter
 			seed = std::stoi(argv[1]);
@@ -181,16 +185,17 @@ private:
 
 	void init_fonts(void) {
 		main_font.loadFromFile(RESOURCE_DIRECTORY + "fonts/" + "RetroByte.ttf");
+		mario_font.loadFromFile(RESOURCE_DIRECTORY + "fonts/" + "Mario64.ttf");
 	}
 
 	void init_buttons(void) {
-		Button exit_button({100, 0}, 100, 80, [&] {
+		malaise::Button exit_button({100, 0}, 100, 80, [&] {
 			stop();
 		});
 
-		Button paint_button({WINDOW_WIDTH - 64, WINDOW_HEIGHT / 2.f}, 64, 64, [&] {
-			cursor.type = Cursor::Type::PAINT_BRUSH;
-			}, "sprites/Sprite-0001.png"
+		malaise::Button paint_button({WINDOW_WIDTH - 64, WINDOW_HEIGHT / 2.f}, 64, 64, [&] {
+			cursor.type = malaise::Cursor::Type::PAINT_BRUSH;
+			}, RESOURCE_DIRECTORY + "sprites/Sprite-0001.png"
 		);
 
 		buttons.reserve(64);
@@ -207,7 +212,7 @@ private:
 
 		welcome_text.setString("Welcome to CELLBI!");
 		welcome_text.setPosition(375, 300);
-		welcome_text.setFont(main_font);
+		welcome_text.setFont(mario_font);
 		welcome_text.setCharacterSize(24);
 		welcome_text.setFillColor(sf::Color::White);
 		util::center_element(welcome_text, welcome_text.getLocalBounds());
@@ -217,7 +222,7 @@ private:
 		dynamic_text_objects.reserve(16);
 
 		dynamic_text_objects.emplace_back(main_font);
-		malaise::animation::TextDynamic &dynamic_text = dynamic_text_objects.back();
+		malaise::text::TextDynamic &dynamic_text = dynamic_text_objects.back();
 
 		dynamic_text.set_position({400, 200});
 		dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
@@ -264,22 +269,18 @@ private:
 	void init_patterns(void) {
 		patterns.reserve(16);
 
-		patterns = Pattern::load_patterns_from_folder(RESOURCE_DIRECTORY + "patterns/");
+		patterns = malaise::Pattern::load_patterns_from_folder(RESOURCE_DIRECTORY + "patterns/");
 
-		// patterns.insert({"loafer", (Pattern)"loafer.rle"});
-		// patterns.emplace_back("loafer_17.rle");
-		// patterns.emplace_back("lwss.rle");
-
-		pattern_selected = &(patterns["loafer"]); // loafer
+		pattern_selected = &patterns.at("loafer"); // a fun and simple glider that I like
 	}
 
 	void init_cursor(void) {
-		cursor.type = Cursor::Type::DOT;
+		cursor.type = malaise::Cursor::Type::DOT;
 		cursor.size = 1;
 	}
 
 	void update_simulation() {
-		while (physics_accumulator >= physics_timestep) {
+		while (physics_accumulator >= physics_timestep) { // Limit framerate to physics tickrate
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
 				simulation.step();
 			}
@@ -290,7 +291,7 @@ private:
 	void draw_ui_elements(void) {
 		window.setView(ui_view);
 
-		for (const Button &btn : buttons) {
+		for (const auto &btn : buttons) {
 			btn.render(window);
 		}
 
@@ -433,7 +434,7 @@ private:
 				case sf::Event::MouseButtonPressed:
 					switch (event.mouseButton.button) {
 						case sf::Mouse::Left:
-							for (Button &btn : buttons) {
+							for (auto &btn : buttons) {
 								if (btn.hovered)
 									btn.pressed = true;
 							}
@@ -450,7 +451,7 @@ private:
 					if (event.mouseButton.button == sf::Mouse::Middle) {
 						dragging = false;
 					} if (event.mouseButton.button == sf::Mouse::Left) {
-						for (Button &btn : buttons) {
+						for (auto &btn : buttons) {
 							if (btn.pressed) {
 								if (btn.hovered)
 									btn.push();
@@ -460,7 +461,7 @@ private:
 					}
 					break;
 				case sf::Event::MouseMoved:
-					for (Button &btn : buttons) {
+					for (auto &btn : buttons) {
 						btn.hovered = btn.point_overlaps_screen(ui_view, sf::Mouse::getPosition(window));
 					}
 					break;
