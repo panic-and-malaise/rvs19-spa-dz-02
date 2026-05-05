@@ -14,12 +14,12 @@ public:
 
 	void set_position(sf::Vector2f vec);
 
-	sf::Text& get_segment(size_t index);
+	void set_next(TextDynamic &next_);
 
 	void push_text_segment(const sf::Text& text);
+	sf::Text& get_segment(size_t index);
 
 	void push_string(const std::string &str);
-
 	template<typename... Args> // Variadic function, C++17
 	void push_strings(const Args&... strings) {
 		(push_string(strings), ...);
@@ -32,6 +32,8 @@ private:
 
 	std::vector<sf::Text> segments;
 	sf::Vector2f position{};
+
+	TextDynamic *next = nullptr; // Pointer to the next textbox if the text is advanceable
 };
 
 }

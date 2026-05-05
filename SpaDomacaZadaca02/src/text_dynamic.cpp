@@ -12,6 +12,10 @@ void TextDynamic::set_position(sf::Vector2f vec) {
 	position = std::move(vec);
 }
 
+void TextDynamic::set_next(TextDynamic &next_) {
+	next = &next_;
+}
+
 sf::Text& TextDynamic::get_segment(size_t index) {
 	return segments.at(index);
 }

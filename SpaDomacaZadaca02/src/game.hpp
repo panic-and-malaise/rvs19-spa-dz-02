@@ -1,8 +1,10 @@
 #ifndef MALAISE_GAME_HPP
 #define MALAISE_GAME_HPP
 
+#include <SFML/Window/Keyboard.hpp>
 #include <ctime>
 #include <filesystem>
+#include <queue>
 #include <random>
 #include <string>
 #include <vector>
@@ -17,6 +19,7 @@
 #include "animation_matrix.hpp"
 #include "button.hpp"
 #include "cursor.hpp"
+#include "event.hpp"
 #include "game_of_life.hpp"
 #include "pattern.hpp"
 #include "text_dynamic.hpp"
@@ -66,6 +69,7 @@ public:
 			float delta_time = time_elapsed.asSeconds();
 			render_accumulator += time_elapsed;
 
+			update_events(delta_time);
 			update_animations(delta_time);
 			update_window_title(time_elapsed);
 
@@ -139,9 +143,12 @@ private:
 
 	std::vector<sf::Text> text_boxes;
 	std::vector<malaise::text::TextDynamic> dynamic_text_objects;
+	std::queue<malaise::text::TextDynamic> scrollable_text_objects;
 
 	std::vector<malaise::Button> buttons;
 	std::unordered_map<std::string, malaise::Pattern> patterns;
+
+	std::queue<malaise::events::Event> event_queue;
 
 	// ---------- CURRENT POINTERS ----------;
 	malaise::Pattern *pattern_selected = nullptr;
@@ -209,7 +216,7 @@ private:
 		text_boxes.emplace_back();
 		sf::Text &welcome_text = text_boxes.back(); // 0
 
-		welcome_text.setString("Welcome to CELLBI!");
+		// No need to set string if a typewriter is going to be used
 		welcome_text.setPosition(375, 300);
 		welcome_text.setFont(mario_font);
 		welcome_text.setCharacterSize(24);
@@ -225,6 +232,26 @@ private:
 
 		dynamic_text.set_position({400, 200});
 		dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
+
+		scrollable_text_objects.push(main_font);
+		malaise::text::TextDynamic &text_box1 = scrollable_text_objects.back();
+		text_box1.set_position({0, 150});
+		text_box1.push_strings("First text box...");
+
+		scrollable_text_objects.push(main_font);
+		malaise::text::TextDynamic &text_box2 = scrollable_text_objects.back();
+		text_box2.set_position({0, 300});
+		text_box2.push_strings("Second text box!");
+		
+		event_queue.emplace(2.f, [&]() {
+			scrollable_text_objects.pop();
+		});
+
+		event_queue.emplace(1.f, [&]() {
+			dynamic_text_objects.emplace_back(mario_font);
+			dynamic_text_objects.back().push_strings("HELLO!!!!! Events are working. :)");
+			dynamic_text_objects.back().set_position({200, 600});
+		});
 	}
 
 	void init_animations(void) {
@@ -249,7 +276,7 @@ private:
 
 		// ----- Dynamic text test animations -----;
 		auto &dynamic_text = dynamic_text_objects[0];
-		auto *dnm_txt_ptr = &dynamic_text.get_segment(2);
+		auto *dnm_txt_ptr = &dynamic_text.get_segment(2); // Just so I don't continously have to type "get_segment"
 
 		malaise::animation::Animation text_spin_scale(*dnm_txt_ptr, true);
 
@@ -270,7 +297,7 @@ private:
 
 		patterns = malaise::Pattern::load_patterns_from_folder(RESOURCE_DIRECTORY + "patterns/");
 
-		pattern_selected = &patterns.at("loafer"); // a fun and simple glider that I like
+		pattern_selected = &patterns.at("loafer"); // a fun and simple glider that I like :)
 	}
 
 	void init_cursor(void) {
@@ -301,6 +328,9 @@ private:
 		for (auto txt : dynamic_text_objects) {
 			txt.draw(window);
 		}
+
+		if (!scrollable_text_objects.empty())
+			scrollable_text_objects.front().draw(window);
 	}
 
 	void draw_world_elements(void) {
@@ -336,6 +366,18 @@ private:
 
 		for (auto &typewriter : typewriters) {
 			typewriter.update(delta_time);
+		}
+	}
+
+	void update_events(const float delta_time) {
+		if (event_queue.empty()) return;
+
+		auto &current_event = event_queue.front();
+		current_event.update(delta_time);
+
+		if (current_event.is_ready()) {
+			current_event.run();
+			event_queue.pop();
 		}
 	}
 
@@ -422,8 +464,15 @@ private:
 					break;
 				}
 				case sf::Event::KeyPressed:
-					if (event.key.code == sf::Keyboard::Escape) {
-						stop();
+					switch (event.key.code) {
+						case sf::Keyboard::Escape:
+							stop();
+							break;
+						case sf::Keyboard::Enter:
+							if (!scrollable_text_objects.empty())
+								scrollable_text_objects.pop();
+						default:
+							break;
 					}
 					break;
 				case sf::Event::MouseWheelScrolled: {
