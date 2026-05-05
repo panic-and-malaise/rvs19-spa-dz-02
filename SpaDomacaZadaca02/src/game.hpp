@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <iostream>
 #include <random>
+#include <string>
 #include <vector>
 
 #include <SFML/Graphics/Font.hpp>
@@ -95,6 +96,13 @@ private:
 
 	const std::string WINDOW_TITLE = "SPA-DZ-02";
 
+	// ---------- YUCKY YUCKY WINDOWS COMPATIBILITY ----------;
+	#ifdef _WIN32
+	const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "\\..\\resources\\";
+	#else
+	const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "/resources/";
+	#endif // _WIN32
+
 	// ---------- RANDOM NUMBER GENERATION ----------;
 	std::random_device rd{};
 	std::mt19937 rng;
@@ -172,7 +180,7 @@ private:
 	}
 
 	void init_fonts(void) {
-		main_font.loadFromFile("RetroByte.ttf");
+		main_font.loadFromFile(RESOURCE_DIRECTORY + "fonts/" + "RetroByte.ttf");
 	}
 
 	void init_buttons(void) {
@@ -256,7 +264,7 @@ private:
 	void init_patterns(void) {
 		patterns.reserve(16);
 
-		patterns = Pattern::load_patterns_from_folder(std::filesystem::current_path());
+		patterns = Pattern::load_patterns_from_folder(RESOURCE_DIRECTORY + "patterns/");
 
 		// patterns.insert({"loafer", (Pattern)"loafer.rle"});
 		// patterns.emplace_back("loafer_17.rle");
@@ -267,7 +275,7 @@ private:
 
 	void init_cursor(void) {
 		cursor.type = Cursor::Type::DOT;
-		cursor.size = 10;
+		cursor.size = 1;
 	}
 
 	void update_simulation() {

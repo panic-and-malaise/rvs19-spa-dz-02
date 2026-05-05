@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
+
 # -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 # System dependant, if SFML is having issues.
 
@@ -27,8 +31,7 @@ FetchContent_MakeAvailable(SFML)
 
 file(GLOB PROJECT_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
-# file(COPY ${CMAKE_SOURCE_DIR}/../models DESTINATION ${CMAKE_BINARY_DIR})
-# file(COPY ${CMAKE_SOURCE_DIR}/../textures DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR})
 
 # --- Main executable ---
 add_executable(main Source.cpp ${PROJECT_SOURCES})
