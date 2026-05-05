@@ -8,7 +8,6 @@
 
 #include "cell.hpp"
 #include "pattern.hpp"
-#include "vec2i.hpp"
 
 class game_of_life {
 public:
@@ -17,22 +16,11 @@ public:
 
 	void step();
 
-	void insert_cell(const Cell& cell);
-
 	const std::unordered_set<Cell, Cell::CellHash>& get_active_cells() const;
+	size_t get_starting_enclosure_size() const;
 
-	void stamp_pattern(const Pattern& p, Cell origin) {
-		for (const Cell &cell : p.cells) {
-			insert_cell({
-				origin.get_position().x + cell.get_position().x,
-				origin.get_position().y + cell.get_position().y
-			});
-		}
-	}
-
-	size_t get_starting_enclosure_size() const {
-		return starting_enclosure_size;
-	}
+	void insert_cell(const Cell& cell);
+	void stamp_pattern(const Pattern& p, Cell origin);
 
 	static constexpr size_t DEFAULT_ENCLOSURE_SIZE = 50;
 	static constexpr size_t STARTING_CELL_NUMBER = 1000;

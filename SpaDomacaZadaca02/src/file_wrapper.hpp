@@ -7,71 +7,38 @@
 #include <ios>
 #include <vector>
 
-// Guess who learned what RAII is
+namespace util {
+
 class FileWrapper {
 public:
-	FileWrapper(std::string filename, std::ios::openmode openmode = std::ios::in) : file(std::move(filename), openmode) {} // Read by default
+	FileWrapper(std::string filename, std::ios::openmode openmode = std::ios::in); // Read by default
 
-	~FileWrapper() {
-		file.close(); // Works because RAII
-	}
+	~FileWrapper();
 
-	explicit operator bool() const {
-		return static_cast<bool>(file);
-	}
+	explicit operator bool() const;
 	
-	std::fstream &get() {
-		return file;
-	}
+	std::fstream& get();
 
-	void reset() {
-		file.clear();
-		file.seekg(0, std::ios::beg);
-		file.seekp(0, std::ios::beg);
-	}
+	void reset();
 
-	bool skip_line() {
-		std::string temp;
-		return static_cast<bool>(std::getline(file, temp));
-	}
+	bool skip_line();
 
 	// Reads the next line of the file into &container, returns false on EOF
-	bool read_line(std::string &container, char delimiter = '\n') {
-		return static_cast<bool>(std::getline(file, container, delimiter));
-	}
+	bool read_line(std::string &container, char delimiter = '\n');
 
 	template<typename T>
-	void reserve_vector(std::vector<T>& v) {
-		size_t num_lines = 0;
-		std::string line;
-
-		while (read_line(line)) num_lines++;
-		v.reserve(num_lines);
-		reset();
-	}
+	void reserve_vector(std::vector<T>& v);
 
 	template<typename T>
-	void copy_to_vector(std::vector<T>& v) {
-		v.clear();
-		std::string line;
+	void copy_to_vector(std::vector<T>& v);
 
-		while (read_line(line)) v.push_back(line);
-		reset();
-	}
+	void debug_print();
 
-	void debug_print() {
-		std::string line;
-		while (read_line(line)) {
-			std::cout << line << '\n';
-		}
-		reset();
-	}
-
-	bool write_line(const std::string &line) {
-		return static_cast<bool>(file << line << '\n');
-	}
+	bool write_line(const std::string &line);
 private:
 	std::fstream file;
+};
+
 };
 
 #endif // !FILE_WRAPPER_H

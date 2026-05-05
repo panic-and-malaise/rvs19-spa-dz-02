@@ -8,6 +8,7 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>

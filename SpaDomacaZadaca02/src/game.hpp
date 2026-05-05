@@ -2,6 +2,7 @@
 #define GOL_GAME_HPP
 
 #include <ctime>
+#include <filesystem>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -16,6 +17,7 @@
 #include "button.hpp"
 #include "cursor.hpp"
 #include "game_of_life.hpp"
+#include "pattern.hpp"
 #include "util.hpp"
 
 namespace malaise {
@@ -128,7 +130,7 @@ private:
 	std::vector<Animation::TextDynamic> dynamic_text_objects;
 
 	std::vector<Button> buttons;
-	std::vector<Pattern> patterns;
+	std::unordered_map<std::string, Pattern> patterns;
 
 	// ----- CURRENT POINTERS -----;
 	Pattern *pattern_selected = nullptr;
@@ -254,11 +256,13 @@ private:
 	void init_patterns(void) {
 		patterns.reserve(16);
 
-		patterns.emplace_back("loafer.rle");
-		patterns.emplace_back("loafer_17.rle");
-		patterns.emplace_back("lwss.rle");
+		patterns = Pattern::load_patterns_from_folder(std::filesystem::current_path());
 
-		pattern_selected = &patterns.front(); // loafer
+		// patterns.insert({"loafer", (Pattern)"loafer.rle"});
+		// patterns.emplace_back("loafer_17.rle");
+		// patterns.emplace_back("lwss.rle");
+
+		pattern_selected = &(patterns["loafer"]); // loafer
 	}
 
 	void init_cursor(void) {
