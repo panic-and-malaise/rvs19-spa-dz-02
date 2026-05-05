@@ -41,9 +41,9 @@ inline float apply_interpolation(float t, Animation::Interpolation type) {
 		case Animation::Interpolation::EASE_IN:
 			return t * t;
 		case Animation::Interpolation::EASE_OUT:
-			return 1.0f - (1.0f - t) * (1.0f - t);
+			return 1.f - (1.f - t) * (1.f - t);
 		case Animation::Interpolation::EASE_IN_OUT:
-			return t * t * (3.0f - 2.0f * t);
+			return t * t * (3.f - 2.f * t);
 		case Animation::Interpolation::ELASTIC: {
 			constexpr float s = 1.70158f;
 			return t * t * ((s + 1) * t - s);
@@ -58,9 +58,9 @@ struct Keyframe {
 		: position(std::move(pos_)), rotation(rotation_), scale(std::move(scale_)), start_time(start_time_), interpolation(interpolation_) {}
 
 	sf::Vector2f position{};
-	float rotation = 0.0f;
+	float rotation = 0.f;
 	sf::Vector2f scale{};
-	float start_time = 0.0f;
+	float start_time = 0.f;
 	Interpolation interpolation = Interpolation::LINEAR;
 };
 
@@ -88,7 +88,7 @@ private:
 	sf::Transformable &object;
 	std::vector<Keyframe> keyframes{};
 
-	float frame_accumulator = 0.0f;
+	float frame_accumulator = 0.f;
 	size_t current_frame = 0;
 
 	bool finished = false;
@@ -118,8 +118,21 @@ private:
 
 class AnimationMatrix {
 public:
-	void push_and_create(const Animation &anim, const size_t index) {
+	// Push to the last created animation queue
+	void push_current(const Animation &anim) {
+		animations[animations.size() - 1].push(anim);
+	}
+
+	// Push to a newly created animation queue at the back of the vector
+	void push_and_create(const Animation &anim) {
+		size_t index = animations.size();
 		if (index >= animations.size()) animations.resize(index + 1);
+		animations[index].push(anim);
+	}
+
+	// Push to a specific animation queue at an index
+	void push_to_index(const Animation &anim, const size_t index) {
+		if (index >= animations.size()) return;
 		animations[index].push(anim);
 	}
 
@@ -137,13 +150,13 @@ private:
 
 class Typewriter {
 public:
-	Typewriter(sf::Text &text_field_, std::string text_, const float speed = 1.0f, std::string cursor_ = "")
+	Typewriter(sf::Text &text_field_, std::string text_, const float speed = 1.f, std::string cursor_ = "")
 		: text_field(text_field_), text(std::move(text_)), chars_per_second(speed), cursor(std::move(cursor_)) {
 			if (!cursor.empty()) show_cursor = true;
 		}
 
 	void set_string(std::string text_) {
-		frame_accumulator = 0.0f;
+		frame_accumulator = 0.f;
 		text = std::move(text_);
 	}
 
@@ -158,7 +171,7 @@ public:
 	void update(float delta_time) {
 		if (!cursor_remain_after_end && text_field.getString() == text) return;
 
-		if (delay > 0.0f) {
+		if (delay > 0.f) {
 			delay -= delta_time;
 		} else {
 			frame_accumulator += delta_time;
@@ -168,7 +181,7 @@ public:
 		num_chars = std::min(num_chars, text.size());
 		std::string visible = text.substr(0, num_chars);
 
-		bool show_cursor = std::fmod(frame_accumulator, 1.0f) < 0.5f;
+		bool show_cursor = std::fmod(frame_accumulator, 1.f) < 0.5f;
 		if (show_cursor) visible += cursor;
 
 		text_field.setString(visible);
@@ -177,9 +190,9 @@ private:
 	sf::Text &text_field;
 	std::string text{};
 
-	float frame_accumulator = 0.0f;
-	float chars_per_second = 1.0f;
-	float delay = -1.0f;
+	float frame_accumulator = 0.f;
+	float chars_per_second = 1.f;
+	float delay = -1.f;
 
 	std::string cursor = "|";
 	bool show_cursor = false;
@@ -254,8 +267,8 @@ public:
 	}
 
 	void draw(sf::RenderTarget &target) {
-		float prev_width = 0.0f;
-		float prev_height = 0.0f;
+		float prev_width = 0.f;
+		float prev_height = 0.f;
 
 		for (auto& segment : segments) {
 			sf::Vector2f origin_frac = {
@@ -268,7 +281,7 @@ public:
 			};
 
 			if (segment.text.getString().toAnsiString().front() == '\n') {
-				prev_width = 0.0f;
+				prev_width = 0.f;
 
 				segment.text.setPosition(position.x + bounds_correction.x, position.y + prev_height + 3);
 				prev_height += segment.text.getLocalBounds().height + segment.text.getLineSpacing();

@@ -3,6 +3,7 @@
 
 #include <SFML/System/Vector2.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <unordered_set>
 
 #include "cell.hpp"
@@ -29,6 +30,10 @@ public:
 		}
 	}
 
+	size_t get_starting_enclosure_size() const {
+		return starting_enclosure_size;
+	}
+
 	static constexpr size_t DEFAULT_ENCLOSURE_SIZE = 50;
 	static constexpr size_t STARTING_CELL_NUMBER = 1000;
 private:
@@ -37,6 +42,10 @@ private:
 
 	std::unordered_set<Cell, Cell::CellHash> cells_potential;
 	std::unordered_set<Cell, Cell::CellHash> cells_potential_next;
+
+	uint32_t seed = 0;
+	size_t starting_cells = 0;
+	size_t starting_enclosure_size = 0;
 
 	bool is_cell_active(const Cell& cell);
 
