@@ -1,4 +1,5 @@
 #include "text_dynamic.hpp"
+#include <memory>
 
 using namespace malaise::text;
 
@@ -16,12 +17,12 @@ sf::Vector2f TextDynamic::get_position() const {
 	return position;
 }
 
-sf::Text& TextDynamic::get_segment(size_t index) {
+std::shared_ptr<sf::Text> TextDynamic::get_segment(size_t index) {
 	return segments.at(index);
 }
 
 void TextDynamic::push_text_segment(const sf::Text& text) {
-	segments.push_back(text);
+	segments.push_back(std::make_shared<sf::Text>(text));
 }
 
 void TextDynamic::push_string(const std::string &str) {
@@ -51,24 +52,25 @@ void TextDynamic::draw(sf::RenderTarget &target) {
 	float prev_height = 0.f;
 
 	for (auto& segment : segments) {
+		if (!segment) continue;
 		sf::Vector2f origin_frac = {
-			segment.getOrigin().x ? segment.getLocalBounds().width  / segment.getOrigin().x : 0.f,
-			segment.getOrigin().y ? segment.getLocalBounds().height / segment.getOrigin().y : 0.f,
+			segment->getOrigin().x ? segment->getLocalBounds().width  / segment->getOrigin().x : 0.f,
+			segment->getOrigin().y ? segment->getLocalBounds().height / segment->getOrigin().y : 0.f,
 		};
 		sf::Vector2f bounds_correction = {
-			origin_frac.x ? segment.getLocalBounds().width  / origin_frac.x : 0.f,
-			origin_frac.y ? segment.getLocalBounds().height / origin_frac.y : 0.f,
+			origin_frac.x ? segment->getLocalBounds().width  / origin_frac.x : 0.f,
+			origin_frac.y ? segment->getLocalBounds().height / origin_frac.y : 0.f,
 		};
 
-		if (segment.getString().toAnsiString().front() == '\n') {
+		if (segment->getString().toAnsiString().front() == '\n') {
 			prev_width = 0.f;
 
-			segment.setPosition(position.x + bounds_correction.x, position.y + prev_height + 3);
-			prev_height += segment.getLocalBounds().height + segment.getLineSpacing();
+			segment->setPosition(position.x + bounds_correction.x, position.y + prev_height + 3);
+			prev_height += segment->getLocalBounds().height + segment->getLineSpacing();
 		} else {
-			segment.setPosition(position.x + prev_width + bounds_correction.x, position.y + prev_height);
+			segment->setPosition(position.x + prev_width + bounds_correction.x, position.y + prev_height);
 		}
-		target.draw(segment);
-		prev_width += segment.getLocalBounds().width + segment.getLetterSpacing();
+		target.draw(*segment);
+		prev_width += segment->getLocalBounds().width + segment->getLetterSpacing();
 	}
 }

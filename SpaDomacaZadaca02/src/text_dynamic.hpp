@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Text.hpp>
+#include <memory>
 
 namespace malaise::text {
 
@@ -16,7 +17,7 @@ public:
 	sf::Vector2f get_position() const;
 
 	void push_text_segment(const sf::Text& text);
-	sf::Text& get_segment(size_t index);
+	std::shared_ptr<sf::Text> get_segment(size_t index);
 
 	void push_string(const std::string &str);
 	template<typename... Args> // Variadic function, C++17
@@ -29,7 +30,7 @@ private:
 	sf::Font font;
 	sf::Text base; // Reference for construction of text objects
 
-	std::vector<sf::Text> segments;
+	std::vector<std::shared_ptr<sf::Text>> segments;
 	sf::Vector2f position{};
 };
 
