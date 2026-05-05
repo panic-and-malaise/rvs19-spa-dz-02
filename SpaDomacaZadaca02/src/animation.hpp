@@ -1,5 +1,5 @@
-#ifndef ANIMATION_HPP
-#define ANIMATION_HPP
+#ifndef MALAISE_ANIMATION_HPP
+#define MALAISE_ANIMATION_HPP
 
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
@@ -18,7 +18,7 @@
 #include <utility>
 #include <vector>
 
-namespace Animation {
+namespace malaise::animation {
 
 enum class Interpolation {
 	NONE = 0,
@@ -31,21 +31,21 @@ enum class Interpolation {
 	ELASTIC,
 };
 
-inline float apply_interpolation(float t, Animation::Interpolation type) {
+inline float apply_interpolation(float t, animation::Interpolation type) {
 	switch (type) {
-		case Animation::Interpolation::LINEAR:
+		case animation::Interpolation::LINEAR:
 			return t;
-		case Animation::Interpolation::QUADRATIC:
+		case animation::Interpolation::QUADRATIC:
 			return t * t;
-		case Animation::Interpolation::CUBIC:
+		case animation::Interpolation::CUBIC:
 			return t * t * t;
-		case Animation::Interpolation::EASE_IN:
+		case animation::Interpolation::EASE_IN:
 			return t * t;
-		case Animation::Interpolation::EASE_OUT:
+		case animation::Interpolation::EASE_OUT:
 			return 1.f - (1.f - t) * (1.f - t);
-		case Animation::Interpolation::EASE_IN_OUT:
+		case animation::Interpolation::EASE_IN_OUT:
 			return t * t * (3.f - 2.f * t);
-		case Animation::Interpolation::ELASTIC: {
+		case animation::Interpolation::ELASTIC: {
 			constexpr float s = 1.70158f;
 			return t * t * ((s + 1) * t - s);
 		}
@@ -302,4 +302,4 @@ private:
 
 }
 
-#endif // !ANIMATION_HPP
+#endif // !MALAISE_ANIMATION_HPP

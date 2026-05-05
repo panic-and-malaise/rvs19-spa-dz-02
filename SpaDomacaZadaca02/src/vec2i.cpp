@@ -3,6 +3,8 @@
 #include <cmath>
 #include <cstdint>
 
+using namespace malaise;
+
 Vec2i Vec2i::operator+(const Vec2i& other) const {
 	return Vec2i{
 		x + other.x,

@@ -1,5 +1,5 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef MALAISE_BUTTON_HPP
+#define MALAISE_BUTTON_HPP
 
 #include <functional>
 #include <string>
@@ -11,6 +11,8 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Vector2.hpp>
+
+namespace malaise {
 
 class Button {
 public:
@@ -38,4 +40,6 @@ private:
 	bool has_texture = false;
 };
 
-#endif // !BUTTON_H
+}
+
+#endif // !MALAISE_BUTTON_HPP

@@ -1,6 +1,6 @@
 #include "file_wrapper.hpp"
 
-using namespace util; // For convenience, really
+using namespace malaise::util; // For convenience, really
 
 FileWrapper::FileWrapper(std::string filename, std::ios::openmode openmode) : file(std::move(filename), openmode) {} // Read by default
 

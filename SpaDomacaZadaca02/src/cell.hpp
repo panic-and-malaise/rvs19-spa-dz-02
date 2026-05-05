@@ -1,11 +1,13 @@
-#ifndef CELL_H
-#define CELL_H
+#ifndef MALAISE_CELL_HPP
+#define MALAISE_CELL_HPP
 
 #include "vec2i.hpp"
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <unordered_set>
+
+namespace malaise {
 
 class Cell {
 public:
@@ -41,4 +43,6 @@ private:
 	sf::Color color = sf::Color::White;
 };
 
-#endif // !CELL_H
+}
+
+#endif // !MALAISE_CELL_HPP

@@ -6,6 +6,8 @@
 #include "file_wrapper.hpp"
 #include "util.hpp"
 
+using namespace malaise;
+
 Pattern::Pattern(const std::string &filename) {
 	*this = load_from_rle(filename);
 }
@@ -91,7 +93,7 @@ std::unordered_map<std::string, Pattern> Pattern::load_patterns_from_folder(cons
 		if (filename.extension() == ".rle") {
 			std::string name = filename.stem().string();
 
-		DEBUG_PRINT("\tLoading " << name << "...");
+			DEBUG_PRINT("\tLoading " << name << "...");
 
 			patterns.emplace(name, filename.string());
 		}

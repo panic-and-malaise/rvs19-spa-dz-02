@@ -1,5 +1,7 @@
 #include "button.hpp"
 
+using namespace malaise;
+
 Button::Button(const sf::Vector2f position_, const float width_, const float height_, const std::function<void()> func, std::string texture_filename)
 	: position(position_), width(width_), height(height_), on_pressed(func) {
 	if (!texture_filename.empty())

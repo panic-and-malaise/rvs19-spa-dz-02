@@ -1,45 +1,48 @@
 #include "animation.hpp"
+
 #include <iostream>
 
-void Animation::Animation::init_first_keyframe() {
+namespace anim = malaise::animation;
+
+void anim::Animation::init_first_keyframe() {
 	put_keyframe(0.0f, object.getPosition(), object.getRotation());
 }
 
-void Animation::Animation::copy_first_keyframe_to_last(const float start_time_) {
+void anim::Animation::copy_first_keyframe_to_last(const float start_time_) {
 	auto frame = keyframes.front();
 	frame.start_time = start_time_;
 	keyframes.emplace_back(frame);
 }
 
-void Animation::Animation::set_looping(const bool loop_) {
+void anim::Animation::set_looping(const bool loop_) {
 	looping = loop_;
 }
 
-bool Animation::Animation::is_finished() const {
+bool anim::Animation::is_finished() const {
 	return finished;
 }
 
-void Animation::Animation::put_keyframe(Keyframe keyframe) {
+void anim::Animation::put_keyframe(Keyframe keyframe) {
 	keyframes.push_back(keyframe);
 }
 
-void Animation::Animation::put_keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_, const Interpolation interpolation_) {
+void anim::Animation::put_keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_, const Interpolation interpolation_) {
 	keyframes.emplace_back(start_time_, pos_, rotation_, scale_, interpolation_);
 }
 
-void Animation::Animation::put_keyframe_idle(const float start_time_) {
+void anim::Animation::put_keyframe_idle(const float start_time_) {
 	auto last = keyframes.back();
 	last.start_time = start_time_;
 	keyframes.emplace_back(last);
 }
 
-void Animation::Animation::apply_keyframe(Keyframe &key) {
+void anim::Animation::apply_keyframe(Keyframe &key) {
 	object.setPosition(key.position);
 	object.setRotation(key.rotation);
 	object.setScale(key.scale);
 }
 
-void Animation::Animation::apply_keyframe_interp(Keyframe &prev, Keyframe &next, float current_time) {
+void anim::Animation::apply_keyframe_interp(Keyframe &prev, Keyframe &next, float current_time) {
 	float t = (current_time - prev.start_time) / (next.start_time - prev.start_time); // fraction through the animation
 	t = std::max(0.0f, std::min(1.0f, t));
 	t = apply_interpolation(t, next.interpolation);
@@ -61,7 +64,7 @@ void Animation::Animation::apply_keyframe_interp(Keyframe &prev, Keyframe &next,
 	object.setScale(scale_x, scale_y);
 }
 
-void Animation::Animation::update(float delta_time) {
+void anim::Animation::update(float delta_time) {
 	if (keyframes.empty() || current_frame > keyframes.size()) return;
 	frame_accumulator += delta_time;
 

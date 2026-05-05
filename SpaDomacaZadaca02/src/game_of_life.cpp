@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <random>
 
+using namespace malaise;
+
 game_of_life::game_of_life(uint32_t seed_, size_t starting_cells_, size_t enclosure_size_)
 	: seed(seed_), starting_cells(starting_cells_), starting_enclosure_size(enclosure_size_) {
 	std::mt19937 rng(seed);

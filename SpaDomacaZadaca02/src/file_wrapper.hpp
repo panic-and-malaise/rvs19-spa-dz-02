@@ -1,5 +1,5 @@
-#ifndef FILE_WRAPPER_H
-#define FILE_WRAPPER_H
+#ifndef MALAISE_FILE_WRAPPER_HPP
+#define MALAISE_FILE_WRAPPER_HPP
 
 #include <iostream>
 #include <string>
@@ -7,7 +7,7 @@
 #include <ios>
 #include <vector>
 
-namespace util {
+namespace malaise::util {
 
 class FileWrapper {
 public:
@@ -41,4 +41,4 @@ private:
 
 };
 
-#endif // !FILE_WRAPPER_H
+#endif // !MALAISE_FILE_WRAPPER_HPP

@@ -1,5 +1,5 @@
-#ifndef GOL_GAME_HPP
-#define GOL_GAME_HPP
+#ifndef MALAISE_GAME_HPP
+#define MALAISE_GAME_HPP
 
 #include <ctime>
 #include <filesystem>
@@ -123,11 +123,11 @@ private:
 	sf::Font main_font;
 
 	// ----- OBJECT VECTORS -----;
-	Animation::AnimationMatrix animation_matrix;
-	std::vector<Animation::Typewriter> typewriters;
+	malaise::animation::AnimationMatrix animation_matrix;
+	std::vector<malaise::animation::Typewriter> typewriters;
 
 	std::vector<sf::Text> text_boxes;
-	std::vector<Animation::TextDynamic> dynamic_text_objects;
+	std::vector<malaise::animation::TextDynamic> dynamic_text_objects;
 
 	std::vector<Button> buttons;
 	std::unordered_map<std::string, Pattern> patterns;
@@ -209,7 +209,7 @@ private:
 		dynamic_text_objects.reserve(16);
 
 		dynamic_text_objects.emplace_back(main_font);
-		Animation::TextDynamic &dynamic_text = dynamic_text_objects.back();
+		malaise::animation::TextDynamic &dynamic_text = dynamic_text_objects.back();
 
 		dynamic_text.set_position({400, 200});
 		dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
@@ -219,14 +219,14 @@ private:
 		// ----- Welcome text animations -----;
 		auto &welcome_text = text_boxes[0];
 
-		Animation::Animation text_left_to_right(welcome_text, false);
-		text_left_to_right.put_keyframe(3.f, {welcome_text.getPosition().x + 200, welcome_text.getPosition().y}, 0.f, {1.f, 1.f}, Animation::Interpolation::QUADRATIC);
+		malaise::animation::Animation text_left_to_right(welcome_text, false);
+		text_left_to_right.put_keyframe(3.f, {welcome_text.getPosition().x + 200, welcome_text.getPosition().y}, 0.f, {1.f, 1.f}, malaise::animation::Interpolation::QUADRATIC);
 
-		Animation::Animation text_idle(welcome_text, false);
+		malaise::animation::Animation text_idle(welcome_text, false);
 		text_idle.put_keyframe_idle(2.f);
 
-		Animation::Animation text_idle_pop(welcome_text, true);
-		text_idle_pop.put_keyframe(1.5f, welcome_text.getPosition(), -30.f, {2.f, 2.f}, Animation::Interpolation::EASE_OUT);
+		malaise::animation::Animation text_idle_pop(welcome_text, true);
+		text_idle_pop.put_keyframe(1.5f, welcome_text.getPosition(), -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
 		text_idle_pop.copy_first_keyframe_to_last(2.f);
 
 		animation_matrix.push_and_create(text_left_to_right);
@@ -239,14 +239,14 @@ private:
 		auto &dynamic_text = dynamic_text_objects[0];
 		auto *dnm_txt_ptr = &dynamic_text.get_segment(2).text;
 
-		Animation::Animation text_spin_scale(*dnm_txt_ptr, true);
+		malaise::animation::Animation text_spin_scale(*dnm_txt_ptr, true);
 
-		text_spin_scale.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, Animation::Interpolation::EASE_OUT);
+		text_spin_scale.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
 		text_spin_scale.copy_first_keyframe_to_last(1.5f);
 
 		dnm_txt_ptr = &dynamic_text.get_segment(6).text;
-		Animation::Animation text_spin_fast(*dnm_txt_ptr, true);
-		text_spin_fast.put_keyframe(.1f, {}, -360.f, {1.f, 1.f}, Animation::Interpolation::LINEAR);
+		malaise::animation::Animation text_spin_fast(*dnm_txt_ptr, true);
+		text_spin_fast.put_keyframe(.1f, {}, -360.f, {1.f, 1.f}, malaise::animation::Interpolation::LINEAR);
 		text_spin_fast.copy_first_keyframe_to_last(.1f);
 
 		animation_matrix.push_and_create(text_spin_scale);
@@ -476,4 +476,4 @@ private:
 
 };
 
-#endif // !GOL_GAME_HPP
+#endif // !MALAISE_GAME_HPP

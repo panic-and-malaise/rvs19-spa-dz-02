@@ -1,5 +1,5 @@
-#ifndef PATTERN_H
-#define PATTERN_H
+#ifndef MALAISE_PATTERN_HPP
+#define MALAISE_PATTERN_HPP
 
 #include <string>
 #include <unordered_map>
@@ -11,6 +11,8 @@
 
 #include "cell.hpp"
 #include "vec2i.hpp"
+
+namespace malaise {
 
 class Pattern {
 public:
@@ -30,4 +32,6 @@ private:
 	size_t height = 0, width = 0;
 };
 
-#endif // !PATTERN_H
+}
+
+#endif // !MALAISE_PATTERN_HPP

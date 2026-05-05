@@ -1,10 +1,12 @@
-#ifndef VEC2I_H
-#define VEC2I_H
+#ifndef MALAISE_VEC2I_HPP
+#define MALAISE_VEC2I_HPP
 
 #include <SFML/System/Vector2.hpp>
 
 #include <cstddef>
 #include <cstdint>
+
+namespace malaise {
 
 struct Vec2i {
 	Vec2i() = default;
@@ -31,4 +33,6 @@ struct Vec2iHash {
 	size_t operator()(const Vec2i& v) const;
 };
 
-#endif // !VEC2I_H
+}
+
+#endif // !MALAISE_VEC2I_HPP

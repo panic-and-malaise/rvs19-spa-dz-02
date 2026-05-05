@@ -1,5 +1,5 @@
-#ifndef GAME_OF_LIFE_H
-#define GAME_OF_LIFE_H
+#ifndef MALAISE_GAME_OF_LIFE_HPP
+#define MALAISE_GAME_OF_LIFE_HPP
 
 #include <SFML/System/Vector2.hpp>
 #include <cstddef>
@@ -8,6 +8,8 @@
 
 #include "cell.hpp"
 #include "pattern.hpp"
+
+namespace malaise {
 
 class game_of_life {
 public:
@@ -42,4 +44,6 @@ private:
 	void update_cell_neighbors(const Cell& cell);
 };
 
-#endif // !GAME_OF_LIFE_H
+}
+
+#endif // !MALAISE_GAME_OF_LIFE_HPP

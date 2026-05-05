@@ -1,17 +1,17 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef MALAISE_UTIL_HPP
+#define MALAISE_UTIL_HPP
 
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#ifndef NDEBUG
+#ifndef NDEBUG // Automagic define that the compiler sets based on the release mode
 #define DEBUG_PRINT(msg) std::cout << msg << "\n"
 #else
 #define DEBUG_PRINT(msg) ;
 #endif
 
-namespace util {
+namespace malaise::util {
 
 inline sf::Vector2i float_vector_to_integer(const sf::Vector2f vf) {
 	return { static_cast<int>(vf.x), static_cast<int>(vf.y) };
@@ -27,4 +27,4 @@ inline void center_element(sf::Transformable &element, const sf::FloatRect &boun
 
 };
 
-#endif // !UTIL_H
+#endif // !MALAISE_UTIL_HPP

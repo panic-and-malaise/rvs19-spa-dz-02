@@ -1,10 +1,12 @@
-#ifndef CURSOR_YRN_HPP
-#define CURSOR_YRN_HPP
+#ifndef MALAISE_CURSOR_HPP
+#define MALAISE_CURSOR_HPP
 
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+
+namespace malaise {
 
 class Cursor {
 public:
@@ -57,4 +59,6 @@ public:
 private:
 };
 
-#endif // !CURSOR_YRN_HPP
+}
+
+#endif // !MALAISE_CURSOR_HPP
