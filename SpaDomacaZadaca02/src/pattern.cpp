@@ -147,7 +147,7 @@ void Pattern::print_rle_file(const std::string &filename) {
 	std::cout << "\n";
 }
 
-void Pattern::render_pattern(sf::RenderTarget &window, Vec2i center, const sf::Color &color) {
+void Pattern::render_pattern(sf::RenderTarget &window, math::Vec2i center, const sf::Color &color) {
 	sf::VertexArray pattern_points(sf::Quads);
 
 	for (const Cell &cell : cells) {

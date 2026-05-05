@@ -2,7 +2,6 @@
 #define MALAISE_TYPEWRITER_HPP
 
 #include <SFML/Graphics/Text.hpp>
-#include <cmath>
 #include <string>
 
 namespace malaise::animation {

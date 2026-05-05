@@ -21,25 +21,20 @@ public:
 
 	Cell() = default;
 	Cell(const int32_t x_, const int32_t y_, sf::Color color_ = sf::Color::White);
-	Cell(const Vec2i vec, sf::Color color_ = sf::Color::White);
+	Cell(const math::Vec2i vec, sf::Color color_ = sf::Color::White);
 	Cell(const sf::Vector2i vec);
 	Cell(const sf::Vector2f vec);
 
 	bool operator==(const Cell& other) const;
 
-	Vec2i get_position() const;
+	math::Vec2i get_position() const;
 
-	void set_color(sf::Color color_) {
-		color = std::move(color_);
-	}
-
-	sf::Color get_color() const {
-		return color;
-	}
+	void set_color(sf::Color color_);
+	sf::Color get_color() const;
 
 	static void draw_cells(sf::RenderTarget &target, const std::unordered_set<Cell, CellHash> &cells);
 private:
-	Vec2i position{};
+	math::Vec2i position{};
 	sf::Color color = sf::Color::White;
 };
 

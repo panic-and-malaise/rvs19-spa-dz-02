@@ -1,7 +1,5 @@
 #include "animation.hpp"
 
-#include <iostream>
-
 namespace anim = malaise::animation;
 
 void anim::Animation::init_first_keyframe() {

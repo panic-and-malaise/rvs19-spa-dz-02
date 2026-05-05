@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstdint>
 
-using namespace malaise;
+using namespace malaise::math;
 
 Vec2i Vec2i::operator+(const Vec2i& other) const {
 	return Vec2i{

@@ -1,5 +1,7 @@
 #include "typewriter.hpp"
 
+#include <cmath>
+
 namespace anim = malaise::animation;
 
 anim::Typewriter::Typewriter(sf::Text &text_field_, std::string text_, const float speed, std::string cursor_)

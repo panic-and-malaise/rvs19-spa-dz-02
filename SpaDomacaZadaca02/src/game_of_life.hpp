@@ -24,8 +24,8 @@ public:
 	void insert_cell(const Cell& cell);
 	void stamp_pattern(const Pattern& p, Cell origin);
 
-	static constexpr size_t DEFAULT_ENCLOSURE_SIZE = 50;
-	static constexpr size_t STARTING_CELL_NUMBER = 1000;
+	static constexpr size_t DEFAULT_ENCLOSURE_SIZE = 100;
+	static constexpr size_t STARTING_CELL_NUMBER = 2000;
 private:
 	std::unordered_set<Cell, Cell::CellHash> cells_active;
 	std::unordered_set<Cell, Cell::CellHash> cells_active_next;

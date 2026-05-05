@@ -15,7 +15,12 @@ game_of_life::game_of_life(uint32_t seed_, size_t starting_cells_, size_t enclos
 		int x = dist(rng);
 		int y = dist(rng);
 
-		insert_cell({x, y});
+		Cell cell(x, y);
+		if (is_cell_active(cell)) { // Make sure the exact amount of cells requested is instantiated
+			i--; // Decrement counter if cell already exists
+			continue;
+		}
+		insert_cell(cell);
 	}
 }
 

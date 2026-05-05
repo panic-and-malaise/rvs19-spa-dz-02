@@ -3,7 +3,6 @@
 
 #include <ctime>
 #include <filesystem>
-#include <iostream>
 #include <random>
 #include <string>
 #include <vector>
@@ -198,7 +197,7 @@ private:
 			}, RESOURCE_DIRECTORY + "sprites/Sprite-0001.png"
 		);
 
-		buttons.reserve(64);
+		buttons.reserve(16);
 
 		buttons.push_back(exit_button);
 		buttons.push_back(paint_button);
@@ -380,7 +379,7 @@ private:
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
 
-			Vec2i center = {
+			math::Vec2i center = {
 				static_cast<int32_t>(world_pos.x),
 				static_cast<int32_t>(world_pos.y)
 				// static_cast<int32_t>(world_pos.x - 0.75f),
@@ -394,7 +393,7 @@ private:
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
 
-			Vec2i center = {
+			math::Vec2i center = {
 				static_cast<int32_t>(std::floor(world_pos.x)),
 				static_cast<int32_t>(std::floor(world_pos.y))
 			};
@@ -404,7 +403,7 @@ private:
 			#define BRUSH_SIZE 10
 			for (int dy = -BRUSH_SIZE / 2; dy <= BRUSH_SIZE / 2; dy++) {
 				for (int dx = -BRUSH_SIZE / 2; dx <= BRUSH_SIZE / 2; dx++) {
-					Vec2i cell = { center.x + dx, center.y + dy };
+					math::Vec2i cell = { center.x + dx, center.y + dy };
 					simulation.insert_cell({cell, sf::Color::Red});
 				}
 			}
@@ -473,16 +472,17 @@ private:
 
 	void update_window_title(const sf::Time &time_elapsed) {
 		// Update only twice per second for readability
-		constexpr unsigned int TIMES_PER_SECOND = 2;
-		if (render_accumulator.asSeconds() >= 1.f / TIMES_PER_SECOND) {
+		constexpr unsigned int UPDATES_PER_SECOND = 2;
+		if (render_accumulator.asSeconds() >= 1.f / UPDATES_PER_SECOND) {
 			float fps = 1.f / time_elapsed.asSeconds();
 
 			window.setTitle(WINDOW_TITLE + " | " + std::to_string(simulation.get_active_cells().size()) + " active cells | " + std::to_string((int)(fps + 0.5f)) + " FPS");
+
 			render_accumulator = sf::Time::Zero;
 		}
 	}
 };
 
-};
+}
 
 #endif // !MALAISE_GAME_HPP

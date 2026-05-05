@@ -2,7 +2,5 @@
 
 int main (int argc, char *argv[]) {
 	malaise::Game game(argc, argv);
-	game.main_loop();
-
-	return 0;
+	return game.main_loop();
 }

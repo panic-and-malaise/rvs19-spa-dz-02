@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace malaise {
+namespace malaise::math {
 
 struct Vec2i {
 	Vec2i() = default;

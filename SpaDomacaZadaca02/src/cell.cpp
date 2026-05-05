@@ -10,7 +10,7 @@ Cell::Cell(const int32_t x_, const int32_t y_, sf::Color color_) {
 	color = std::move(color_);
 }
 
-Cell::Cell(const Vec2i vec, sf::Color color_) : position(std::move(vec)), color(std::move(color_)) {}
+Cell::Cell(const math::Vec2i vec, sf::Color color_) : position(std::move(vec)), color(std::move(color_)) {}
 
 Cell::Cell(const sf::Vector2i vec) {
 	position.x = vec.x;
@@ -26,8 +26,16 @@ bool Cell::operator==(const Cell& other) const {
 	return position.x == other.position.x && position.y == other.position.y;
 }
 
-Vec2i Cell::get_position() const {
+math::Vec2i Cell::get_position() const {
 	return position;
+}
+
+void Cell::set_color(sf::Color color_) {
+	color = std::move(color_);
+}
+
+sf::Color Cell::get_color() const {
+	return color;
 }
 
 void Cell::draw_cells(sf::RenderTarget &target, const std::unordered_set<Cell, CellHash> &cells) {

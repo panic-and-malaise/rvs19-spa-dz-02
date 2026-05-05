@@ -26,7 +26,7 @@ public:
 
 	static void print_rle_file(const std::string &filename);
 
-	void render_pattern(sf::RenderTarget &window, Vec2i center, const sf::Color &color = sf::Color(255, 255, 255, 127));
+	void render_pattern(sf::RenderTarget &window, math::Vec2i center, const sf::Color &color = sf::Color(255, 255, 255, 127));
 private:
 	std::vector<Cell> cells;
 	size_t height = 0, width = 0;
