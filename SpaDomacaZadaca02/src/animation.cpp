@@ -3,7 +3,7 @@
 namespace anim = malaise::animation;
 
 void anim::Animation::init_first_keyframe() {
-	put_keyframe(0.0f, object->getPosition(), object->getRotation());
+	put_keyframe(0.0f, object->getPosition(), object->getRotation(), object->getScale());
 }
 
 void anim::Animation::copy_first_keyframe_to_last(const float start_time_) {
@@ -38,7 +38,7 @@ void anim::Animation::put_keyframe_idle(const float start_time_) {
 	keyframes.emplace_back(last);
 }
 
-void anim::Animation::apply_keyframe(Keyframe &key) {
+void anim::Animation::apply_keyframe(const Keyframe &key) {
 	if (!object) return;
 
 	object->setPosition(key.position);
@@ -46,7 +46,7 @@ void anim::Animation::apply_keyframe(Keyframe &key) {
 	object->setScale(key.scale);
 }
 
-void anim::Animation::apply_keyframe_interp(Keyframe &prev, Keyframe &next, float current_time) {
+void anim::Animation::apply_keyframe_interp(const Keyframe &prev, const Keyframe &next, float current_time) {
 	if (!object) return;
 
 	float t = (current_time - prev.start_time) / (next.start_time - prev.start_time); // fraction through the animation

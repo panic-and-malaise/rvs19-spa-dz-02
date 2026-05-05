@@ -231,66 +231,68 @@ private:
 	void init_dynamic_text(void) {
 		dynamic_text_objects.reserve(16);
 
-		dynamic_text_objects.emplace_back(main_font);
-		malaise::text::TextDynamic &dynamic_text = dynamic_text_objects.back();
+		// dynamic_text_objects.emplace_back(main_font);
+		// malaise::text::TextDynamic &dynamic_text = dynamic_text_objects.back();
 
-		dynamic_text.set_position({400, 200});
-		dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
+		// dynamic_text.set_position({400, 200});
+		// dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
 
-		scrollable_text_objects.push(main_font);
-		inputs_locked = true; // with pushed scrollable text_object
-		malaise::text::TextDynamic &text_box1 = scrollable_text_objects.back();
-		text_box1.set_position({0, 150});
-		text_box1.push_strings("First text box...");
+		// scrollable_text_objects.push(main_font);
+		// inputs_locked = true; // with pushed scrollable text_object
+		// malaise::text::TextDynamic &text_box1 = scrollable_text_objects.back();
+		// text_box1.set_position({0, 150});
+		// text_box1.push_strings("First text box...");
 
-		scrollable_text_objects.push(main_font);
-		malaise::text::TextDynamic &text_box2 = scrollable_text_objects.back();
-		text_box2.set_position({0, 300});
-		text_box2.push_strings("Second text box!");
+		// scrollable_text_objects.push(main_font);
+		// malaise::text::TextDynamic &text_box2 = scrollable_text_objects.back();
+		// text_box2.set_position({0, 300});
+		// text_box2.push_strings("Second text box!");
 
 	}
 
 	void init_animations(void) {
-		// ----- Welcome text animations -----;
-		auto welcome_text = text_boxes.at(0);
+		/* Create three animations, all referencing the shared_ptr for the initial "Welcome" text
+		 * 1. 
+		 */
+		// auto welcome_text = text_boxes.at(0);
 
-		malaise::animation::Animation text_left_to_right(welcome_text, false);
-		text_left_to_right.put_keyframe(3.f, {welcome_text->getPosition().x + 200, welcome_text->getPosition().y}, 0.f, {1.f, 1.f}, malaise::animation::Interpolation::QUADRATIC);
+		// malaise::animation::Animation text_left_to_right(welcome_text, false);
+		// text_left_to_right.put_keyframe(3.f, {welcome_text->getPosition().x + 200, welcome_text->getPosition().y}, 0.f, {1.f, 1.f}, malaise::animation::Interpolation::QUADRATIC);
 
-		malaise::animation::Animation text_idle(welcome_text, false);
-		text_idle.put_keyframe_idle(2.f);
+		// malaise::animation::Animation text_idle(welcome_text, false);
+		// text_idle.put_keyframe_idle(2.f);
 
-		malaise::animation::Animation text_idle_pop(welcome_text, true);
-		text_idle_pop.put_keyframe(1.5f, welcome_text->getPosition(), -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
-		text_idle_pop.copy_first_keyframe_to_last(2.f);
+		// malaise::animation::Animation text_idle_pop(welcome_text, true);
+		// text_idle_pop.put_keyframe(1.5f, welcome_text->getPosition(), -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
+		// text_idle_pop.copy_first_keyframe_to_last(2.f);
 
-		animation_matrix.push_and_create(text_left_to_right);
-		animation_matrix.push_current(text_idle);
-		animation_matrix.push_current(text_idle_pop);
+		// animation_matrix.push_and_create(text_left_to_right);
+		// animation_matrix.push_current(text_idle);
+		// animation_matrix.push_current(text_idle_pop);
 
-		typewriters.emplace_back(*welcome_text, "Welcome to Cellbi! :)", 10.f, "");
+		// typewriters.emplace_back(*welcome_text, "Welcome to Cellbi! :)", 10.f, "");
 
-		// ----- Dynamic text test animations -----;
-		auto &dynamic_text = dynamic_text_objects.back();
-		auto dnm_txt_ptr = dynamic_text.get_segment(2); // Just so I don't continously have to type "get_segment"
+		// // ----- Dynamic text test animations -----;
+		// auto &dynamic_text = dynamic_text_objects.back();
+		// auto dnm_txt_ptr = dynamic_text.get_segment(2); // Just so I don't continously have to type "get_segment"
 
-		malaise::animation::Animation text_spin_scale(*dnm_txt_ptr, true);
+		// malaise::animation::Animation text_spin_scale(*dnm_txt_ptr, true);
 
-		text_spin_scale.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
-		text_spin_scale.copy_first_keyframe_to_last(1.5f);
+		// text_spin_scale.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
+		// text_spin_scale.copy_first_keyframe_to_last(1.5f);
 
-		dnm_txt_ptr = dynamic_text.get_segment(6);
-		malaise::animation::Animation text_spin_fast(*dnm_txt_ptr, true);
-		text_spin_fast.put_keyframe(.1f, {}, -360.f, {1.f, 1.f}, malaise::animation::Interpolation::LINEAR);
-		text_spin_fast.copy_first_keyframe_to_last(.1f);
+		// dnm_txt_ptr = dynamic_text.get_segment(6);
+		// malaise::animation::Animation text_spin_fast(*dnm_txt_ptr, true);
+		// text_spin_fast.put_keyframe(.1f, {}, -360.f, {1.f, 1.f}, malaise::animation::Interpolation::LINEAR);
+		// text_spin_fast.copy_first_keyframe_to_last(.1f);
 
-		animation_matrix.push_and_create(text_spin_scale);
-		animation_matrix.push_and_create(text_spin_fast);
+		// animation_matrix.push_and_create(text_spin_scale);
+		// animation_matrix.push_and_create(text_spin_fast);
 
-		malaise::animation::Animation text_scroll_pop(scrollable_text_objects.front().get_segment(0), true);
-		text_scroll_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
-		text_scroll_pop.copy_first_keyframe_to_last(1.5f);
-		animation_matrix.push_and_create(text_scroll_pop);
+		// malaise::animation::Animation text_scroll_pop(scrollable_text_objects.front().get_segment(0), true);
+		// text_scroll_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
+		// text_scroll_pop.copy_first_keyframe_to_last(1.5f);
+		// animation_matrix.push_and_create(text_scroll_pop);
 
 	}
 
@@ -312,11 +314,11 @@ private:
 		// 	scrollable_text_objects.pop();
 		// });
 
-		event_manager.emplace_event(3.f, [&]() {
-			dynamic_text_objects.emplace_back(mario_font);
-			dynamic_text_objects.back().push_strings("HELLO!!!!! Events are working. :)");
-			dynamic_text_objects.back().set_position({200, 600});
-		});
+		// event_manager.emplace_event(3.f, [&]() {
+		// 	dynamic_text_objects.emplace_back(mario_font);
+		// 	dynamic_text_objects.back().push_strings("HELLO!!!!! Events are working. :)");
+		// 	dynamic_text_objects.back().set_position({200, 600});
+		// });
 
 		// event_manager.emplace_event(2.f, [&]() {
 		// 	text_boxes.pop_back();
