@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "file_wrapper.hpp"
+#include "util.hpp"
 
 Pattern::Pattern(const std::string &filename) {
 	*this = load_from_rle(filename);
@@ -78,9 +79,7 @@ Pattern Pattern::load_from_rle(const std::string& filename) {
 std::unordered_map<std::string, Pattern> Pattern::load_patterns_from_folder(const std::string &base_path) {
 	std::unordered_map<std::string, Pattern> patterns;
 
-	#ifndef NDEBUG // Little debug printing ifdef
-	std::cout << "Path \"" << base_path << "\":\n";
-	#endif // !NDEBUG
+	DEBUG_PRINT("Path \"" << base_path << "\":");
 
 	namespace fs = std::filesystem;
 
@@ -92,9 +91,7 @@ std::unordered_map<std::string, Pattern> Pattern::load_patterns_from_folder(cons
 		if (filename.extension() == ".rle") {
 			std::string name = filename.stem().string();
 
-		#ifndef NDEBUG
-		std::cout << "\tLoading " << name << "...\n";
-		#endif // !NDEBUG
+		DEBUG_PRINT("\tLoading " << name << "...");
 
 			patterns.emplace(name, filename.string());
 		}

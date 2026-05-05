@@ -5,6 +5,12 @@
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#ifndef NDEBUG
+#define DEBUG_PRINT(msg) std::cout << msg << "\n"
+#else
+#define DEBUG_PRINT(msg) ;
+#endif
+
 namespace util {
 
 inline sf::Vector2i float_vector_to_integer(const sf::Vector2f vf) {
