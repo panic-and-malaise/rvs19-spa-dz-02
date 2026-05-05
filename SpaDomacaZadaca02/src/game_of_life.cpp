@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdint>
 #include <random>
+#include <utility>
 
 using namespace malaise;
 
@@ -28,14 +29,11 @@ game_of_life::game_of_life(uint32_t seed_, size_t starting_cells_, size_t enclos
 game_of_life::game_of_life() : game_of_life(std::random_device{}(), STARTING_CELL_NUMBER, DEFAULT_ENCLOSURE_SIZE) {}
 
 void game_of_life::step() {
-	cells_active = cells_active_next;
+	cells_active = std::move(cells_active_next);
 	cells_active_next.clear();
+	cells_active_next.reserve(cells_active.size());
 
-	// cells_active_next.reserve(cells_active.size());
-
-	cells_potential = cells_potential_next;
-	cells_potential_next.clear();
-
+	cells_potential.swap(cells_potential_next);
 	cells_potential_next = cells_active;
 
 	for (const Cell &cell : cells_potential) {
@@ -95,7 +93,6 @@ inline size_t game_of_life::get_cell_neighbors(const Cell& cell) {
 void game_of_life::update_cell_neighbors(const Cell& cell) {
 	for (int y = -1; y <= 1; y++)
 		for (int x = -1; x <= 1; x++) {
-			if (x == 0 && y == 0) continue;
 			cells_potential_next.insert({cell.get_position().x + x, cell.get_position().y + y, cell.get_color()});
 		}
 }

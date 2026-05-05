@@ -20,6 +20,10 @@ bool anim::Animation::is_finished() const {
 	return finished;
 }
 
+bool anim::Animation::expired() const {
+	return !static_cast<bool>(object);
+}
+
 void anim::Animation::put_keyframe(Keyframe keyframe) {
 	keyframes.push_back(keyframe);
 }

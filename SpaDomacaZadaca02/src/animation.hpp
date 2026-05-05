@@ -77,6 +77,8 @@ public:
 	void set_looping(const bool loop_);
 	bool is_finished() const;
 
+	bool expired() const;
+
 	void put_keyframe(Keyframe keyframe);
 	void put_keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_ = { 1.f, 1.f }, const Interpolation interpolation_ = Interpolation::LINEAR);
 	void put_keyframe_idle(const float start_time_);

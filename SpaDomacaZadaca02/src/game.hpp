@@ -4,6 +4,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <ctime>
 #include <filesystem>
+#include <memory>
 #include <queue>
 #include <random>
 #include <string>
@@ -144,7 +145,7 @@ private:
 	malaise::animation::AnimationMatrix animation_matrix;
 	std::vector<malaise::animation::Typewriter> typewriters;
 
-	std::vector<sf::Text> text_boxes;
+	std::vector<std::shared_ptr<sf::Text>> text_boxes;
 	std::vector<malaise::text::TextDynamic> dynamic_text_objects;
 	std::queue<malaise::text::TextDynamic> scrollable_text_objects;
 
@@ -216,15 +217,15 @@ private:
 	void init_text_boxes() {
 		text_boxes.reserve(16);
 
-		text_boxes.emplace_back();
-		sf::Text &welcome_text = text_boxes.back(); // 0
+		text_boxes.push_back(std::make_unique<sf::Text>());
+		auto welcome_text = text_boxes.back(); // 0
 
 		// No need to set string if a typewriter is going to be used
-		welcome_text.setPosition(375, 300);
-		welcome_text.setFont(mario_font);
-		welcome_text.setCharacterSize(24);
-		welcome_text.setFillColor(sf::Color::White);
-		util::center_element(welcome_text, welcome_text.getLocalBounds());
+		welcome_text->setPosition(375, 300);
+		welcome_text->setFont(mario_font);
+		welcome_text->setCharacterSize(24);
+		welcome_text->setFillColor(sf::Color::White);
+		util::center_element(*welcome_text, welcome_text->getLocalBounds());
 	}
 
 	void init_dynamic_text(void) {
@@ -251,23 +252,23 @@ private:
 
 	void init_animations(void) {
 		// ----- Welcome text animations -----;
-		auto &welcome_text = text_boxes.at(0);
+		auto welcome_text = text_boxes.at(0);
 
 		malaise::animation::Animation text_left_to_right(welcome_text, false);
-		text_left_to_right.put_keyframe(3.f, {welcome_text.getPosition().x + 200, welcome_text.getPosition().y}, 0.f, {1.f, 1.f}, malaise::animation::Interpolation::QUADRATIC);
+		text_left_to_right.put_keyframe(3.f, {welcome_text->getPosition().x + 200, welcome_text->getPosition().y}, 0.f, {1.f, 1.f}, malaise::animation::Interpolation::QUADRATIC);
 
 		malaise::animation::Animation text_idle(welcome_text, false);
 		text_idle.put_keyframe_idle(2.f);
 
 		malaise::animation::Animation text_idle_pop(welcome_text, true);
-		text_idle_pop.put_keyframe(1.5f, welcome_text.getPosition(), -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
+		text_idle_pop.put_keyframe(1.5f, welcome_text->getPosition(), -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
 		text_idle_pop.copy_first_keyframe_to_last(2.f);
 
 		animation_matrix.push_and_create(text_left_to_right);
 		animation_matrix.push_current(text_idle);
 		animation_matrix.push_current(text_idle_pop);
 
-		typewriters.emplace_back(welcome_text, "Welcome to Cellbi! :)", 10.f, "");
+		typewriters.emplace_back(*welcome_text, "Welcome to Cellbi! :)", 10.f, "");
 
 		// ----- Dynamic text test animations -----;
 		auto &dynamic_text = dynamic_text_objects.back();
@@ -310,6 +311,10 @@ private:
 			dynamic_text_objects.back().push_strings("HELLO!!!!! Events are working. :)");
 			dynamic_text_objects.back().set_position({200, 600});
 		});
+
+		// event_manager.emplace_event(2.f, [&]() {
+		// 	text_boxes.pop_back();
+		// });
 	}
 
 	void update_simulation() {
@@ -328,8 +333,8 @@ private:
 			btn.render(window);
 		}
 
-		for (const auto &txt : text_boxes) {
-			window.draw(txt);
+		for (const auto txt : text_boxes) {
+			window.draw(*txt);
 		}
 
 		for (auto &txt : dynamic_text_objects) {
@@ -367,10 +372,18 @@ private:
 		for (auto &animation_queue : animation_matrix.get_animations()) {
 			if (animation_queue.front().is_finished()) // Play animations from the queue in sequence, popping when finished
 				animation_queue.pop();
-			if (!animation_queue.empty())
-				animation_queue.front().update(delta_time); // Tick only the currently playing animation
-		}
 
+			if (!animation_queue.empty()) {
+				auto &current_animation = animation_queue.front();
+
+				if (current_animation.expired()) {
+					animation_queue.pop();
+				} else {
+					current_animation.update(delta_time); // Tick only the currently playing animation
+				}
+			}
+
+		}
 		for (auto &typewriter : typewriters) {
 			typewriter.update(delta_time);
 		}
