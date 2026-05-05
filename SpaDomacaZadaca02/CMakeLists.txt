@@ -18,6 +18,11 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -g")
+    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address,undefined")
+endif()
+
 # Fetch and configure SFML version 2.5.1
 include(FetchContent)
 FetchContent_Declare(SFML

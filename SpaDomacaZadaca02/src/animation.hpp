@@ -9,6 +9,7 @@
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -62,7 +63,11 @@ struct Keyframe {
 
 class Animation {
 public:
-    Animation(sf::Transformable &t, const bool loop_ = false) : object(t), looping(loop_) {
+    Animation(std::shared_ptr<sf::Transformable> t, const bool loop_ = false) : object(t), looping(loop_) {
+		init_first_keyframe();
+	}
+
+    Animation(sf::Transformable t, const bool loop_ = false) : object(std::make_shared<sf::Transformable>(t)), looping(loop_) {
 		init_first_keyframe();
 	}
 
@@ -81,7 +86,7 @@ public:
 
 	void update(float delta_time);
 private:
-	sf::Transformable &object;
+	std::shared_ptr<sf::Transformable> object;
 	std::vector<Keyframe> keyframes{};
 
 	float frame_accumulator = 0.f;

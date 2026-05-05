@@ -26,7 +26,7 @@ public:
 
 	void render(sf::RenderWindow &window) const;
 
-	void push();
+	void push() const;
 
 	bool hovered = false;
 	bool pressed = false;

@@ -3,7 +3,7 @@
 namespace anim = malaise::animation;
 
 void anim::Animation::init_first_keyframe() {
-	put_keyframe(0.0f, object.getPosition(), object.getRotation());
+	put_keyframe(0.0f, object->getPosition(), object->getRotation());
 }
 
 void anim::Animation::copy_first_keyframe_to_last(const float start_time_) {
@@ -35,12 +35,16 @@ void anim::Animation::put_keyframe_idle(const float start_time_) {
 }
 
 void anim::Animation::apply_keyframe(Keyframe &key) {
-	object.setPosition(key.position);
-	object.setRotation(key.rotation);
-	object.setScale(key.scale);
+	if (!object) return;
+
+	object->setPosition(key.position);
+	object->setRotation(key.rotation);
+	object->setScale(key.scale);
 }
 
 void anim::Animation::apply_keyframe_interp(Keyframe &prev, Keyframe &next, float current_time) {
+	if (!object) return;
+
 	float t = (current_time - prev.start_time) / (next.start_time - prev.start_time); // fraction through the animation
 	t = std::max(0.0f, std::min(1.0f, t));
 	t = apply_interpolation(t, next.interpolation);
@@ -48,18 +52,18 @@ void anim::Animation::apply_keyframe_interp(Keyframe &prev, Keyframe &next, floa
 	float pos_x = prev.position.x + (next.position.x - prev.position.x) * t;
 	float pos_y = prev.position.y + (next.position.y - prev.position.y) * t;
 	if (next.position.x < 0.0f)
-		pos_x = object.getPosition().x;
+		pos_x = object->getPosition().x;
 	if (next.position.y < 0.0f)
-		pos_x = object.getPosition().y;
+		pos_x = object->getPosition().y;
 
 	float rotation = prev.rotation + (next.rotation - prev.rotation) * t;
 
 	float scale_x = prev.scale.x + (next.scale.x - prev.scale.x) * t;
 	float scale_y = prev.scale.y + (next.scale.y - prev.scale.y) * t;
 
-	object.setPosition({pos_x, pos_y});
-	object.setRotation(rotation);
-	object.setScale(scale_x, scale_y);
+	object->setPosition({pos_x, pos_y});
+	object->setRotation(rotation);
+	object->setScale(scale_x, scale_y);
 }
 
 void anim::Animation::update(float delta_time) {

@@ -19,7 +19,7 @@
 #include "animation_matrix.hpp"
 #include "button.hpp"
 #include "cursor.hpp"
-#include "event.hpp"
+#include "event_manager.hpp"
 #include "game_of_life.hpp"
 #include "pattern.hpp"
 #include "text_dynamic.hpp"
@@ -45,7 +45,9 @@ public:
 
 		init_buttons();
 		init_dynamic_text();
+
 		init_animations();
+		init_events();
 	}
 
 	// --------------- PUBLIC METHODS ---------------;
@@ -56,9 +58,9 @@ public:
 		while (running) {
 			physics_accumulator += physics_clock.restart();
 
-			handle_events();
+			handle_sfml_events();
 			handle_mouse_pan();
-			handle_painting_cells();
+			handle_realtime_inputs();
 
 			update_simulation();
 			render();
@@ -86,6 +88,7 @@ public:
 
 private:
 	bool running = true;
+	bool inputs_locked = false;
 
 	// ---------- SFML WINDOW & VIEWS ----------;
 	sf::RenderWindow window;
@@ -148,7 +151,7 @@ private:
 	std::vector<malaise::Button> buttons;
 	std::unordered_map<std::string, malaise::Pattern> patterns;
 
-	std::queue<malaise::events::Event> event_queue;
+	malaise::events::EventManager event_manager;
 
 	// ---------- CURRENT POINTERS ----------;
 	malaise::Pattern *pattern_selected = nullptr;
@@ -200,7 +203,7 @@ private:
 		});
 
 		malaise::Button paint_button({WINDOW_WIDTH - 64, WINDOW_HEIGHT / 2.f}, 64, 64, [&] {
-			cursor.type = malaise::Cursor::Type::PAINT_BRUSH;
+			// cursor.type = malaise::Cursor::Type::PAINT_BRUSH;
 			}, RESOURCE_DIRECTORY + "sprites/Sprite-0001.png"
 		);
 
@@ -234,6 +237,7 @@ private:
 		dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
 
 		scrollable_text_objects.push(main_font);
+		inputs_locked = true; // with pushed scrollable text_object
 		malaise::text::TextDynamic &text_box1 = scrollable_text_objects.back();
 		text_box1.set_position({0, 150});
 		text_box1.push_strings("First text box...");
@@ -242,21 +246,12 @@ private:
 		malaise::text::TextDynamic &text_box2 = scrollable_text_objects.back();
 		text_box2.set_position({0, 300});
 		text_box2.push_strings("Second text box!");
-		
-		event_queue.emplace(2.f, [&]() {
-			scrollable_text_objects.pop();
-		});
 
-		event_queue.emplace(1.f, [&]() {
-			dynamic_text_objects.emplace_back(mario_font);
-			dynamic_text_objects.back().push_strings("HELLO!!!!! Events are working. :)");
-			dynamic_text_objects.back().set_position({200, 600});
-		});
 	}
 
 	void init_animations(void) {
 		// ----- Welcome text animations -----;
-		auto &welcome_text = text_boxes[0];
+		auto &welcome_text = text_boxes.at(0);
 
 		malaise::animation::Animation text_left_to_right(welcome_text, false);
 		text_left_to_right.put_keyframe(3.f, {welcome_text.getPosition().x + 200, welcome_text.getPosition().y}, 0.f, {1.f, 1.f}, malaise::animation::Interpolation::QUADRATIC);
@@ -275,7 +270,7 @@ private:
 		typewriters.emplace_back(welcome_text, "Welcome to Cellbi! :)", 10.f, "");
 
 		// ----- Dynamic text test animations -----;
-		auto &dynamic_text = dynamic_text_objects[0];
+		auto &dynamic_text = dynamic_text_objects.back();
 		auto *dnm_txt_ptr = &dynamic_text.get_segment(2); // Just so I don't continously have to type "get_segment"
 
 		malaise::animation::Animation text_spin_scale(*dnm_txt_ptr, true);
@@ -305,6 +300,18 @@ private:
 		cursor.size = 1;
 	}
 
+	void init_events(void) {
+		// event_manager.emplace_event(2.f, [&]() {
+		// 	scrollable_text_objects.pop();
+		// });
+
+		event_manager.emplace_event(3.f, [&]() {
+			dynamic_text_objects.emplace_back(mario_font);
+			dynamic_text_objects.back().push_strings("HELLO!!!!! Events are working. :)");
+			dynamic_text_objects.back().set_position({200, 600});
+		});
+	}
+
 	void update_simulation() {
 		while (physics_accumulator >= physics_timestep) { // Limit framerate to physics tickrate
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
@@ -321,11 +328,11 @@ private:
 			btn.render(window);
 		}
 
-		for (const auto txt : text_boxes) {
+		for (const auto &txt : text_boxes) {
 			window.draw(txt);
 		}
 
-		for (auto txt : dynamic_text_objects) {
+		for (auto &txt : dynamic_text_objects) {
 			txt.draw(window);
 		}
 
@@ -370,15 +377,7 @@ private:
 	}
 
 	void update_events(const float delta_time) {
-		if (event_queue.empty()) return;
-
-		auto &current_event = event_queue.front();
-		current_event.update(delta_time);
-
-		if (current_event.is_ready()) {
-			current_event.run();
-			event_queue.pop();
-		}
+		event_manager.update_and_run_events(delta_time);
 	}
 
 	void handle_mouse_pan(void) {
@@ -395,6 +394,8 @@ private:
 	}
 
 	void handle_mouse_zoom(const float scroll_delta) {
+		if (inputs_locked) return;
+
 		sf::Vector2i pixel = sf::Mouse::getPosition(window);
 		sf::Vector2f before = window.mapPixelToCoords(pixel);
 
@@ -416,7 +417,9 @@ private:
 		world_view.zoom(old_x / width);
 	}
 
-	void handle_painting_cells(void) {
+	void handle_realtime_inputs(void) {
+		if (inputs_locked) return;
+		// -------------------- CELL PAINTING --------------------;
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
@@ -430,8 +433,7 @@ private:
 
 			if (pattern_selected)
 				simulation.stamp_pattern(*pattern_selected, {center});
-		}
-		else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+		} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
 
@@ -440,9 +442,7 @@ private:
 				static_cast<int32_t>(std::floor(world_pos.y))
 			};
 
-			// current_pattern = &lwss;
-
-			#define BRUSH_SIZE 10
+			constexpr int BRUSH_SIZE = 10;
 			for (int dy = -BRUSH_SIZE / 2; dy <= BRUSH_SIZE / 2; dy++) {
 				for (int dx = -BRUSH_SIZE / 2; dx <= BRUSH_SIZE / 2; dx++) {
 					math::Vec2i cell = { center.x + dx, center.y + dy };
@@ -452,7 +452,7 @@ private:
 		}
 	}
 
-	void handle_events(void) {
+	void handle_sfml_events(void) {
 		sf::Event event;
 		while (window.pollEvent(event)) {
 			switch (event.type) {
@@ -469,8 +469,11 @@ private:
 							stop();
 							break;
 						case sf::Keyboard::Enter:
-							if (!scrollable_text_objects.empty())
+							if (!scrollable_text_objects.empty()) {
 								scrollable_text_objects.pop();
+								if (scrollable_text_objects.empty())
+									inputs_locked = false;
+							}
 						default:
 							break;
 					}
@@ -480,6 +483,8 @@ private:
 					break;
 				}
 				case sf::Event::MouseButtonPressed:
+					if (inputs_locked) break;
+
 					switch (event.mouseButton.button) {
 						case sf::Mouse::Left:
 							for (auto &btn : buttons) {
@@ -496,6 +501,8 @@ private:
 					}
 					break;
 				case sf::Event::MouseButtonReleased:
+					if (inputs_locked) break;
+
 					if (event.mouseButton.button == sf::Mouse::Middle) {
 						dragging = false;
 					} if (event.mouseButton.button == sf::Mouse::Left) {
@@ -509,6 +516,8 @@ private:
 					}
 					break;
 				case sf::Event::MouseMoved:
+					if (inputs_locked) break;
+
 					for (auto &btn : buttons) {
 						btn.hovered = btn.point_overlaps_screen(ui_view, sf::Mouse::getPosition(window));
 					}

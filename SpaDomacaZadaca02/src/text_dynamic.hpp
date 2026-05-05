@@ -13,8 +13,7 @@ public:
 	sf::Text& get_text_template();
 
 	void set_position(sf::Vector2f vec);
-
-	void set_next(TextDynamic &next_);
+	sf::Vector2f get_position() const;
 
 	void push_text_segment(const sf::Text& text);
 	sf::Text& get_segment(size_t index);
@@ -32,8 +31,6 @@ private:
 
 	std::vector<sf::Text> segments;
 	sf::Vector2f position{};
-
-	TextDynamic *next = nullptr; // Pointer to the next textbox if the text is advanceable
 };
 
 }

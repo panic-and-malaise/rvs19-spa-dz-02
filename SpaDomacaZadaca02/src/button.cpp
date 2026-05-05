@@ -65,6 +65,6 @@ void Button::render(sf::RenderWindow &window) const {
 	window.draw(box);
 }
 
-void Button::push() {
+void Button::push() const {
 	on_pressed();
 }

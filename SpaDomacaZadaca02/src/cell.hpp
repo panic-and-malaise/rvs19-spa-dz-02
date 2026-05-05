@@ -13,7 +13,9 @@ class Cell {
 public:
 	struct CellHash {
 		size_t operator()(const Cell& c) const {
-			return int64_t(c.position.y << sizeof(int32_t) | c.position.x);
+			uint64_t x = static_cast<uint32_t>(c.position.x);
+			uint64_t y = static_cast<uint32_t>(c.position.y);
+			return (y << 32) | x;
 		}
 	};
 
