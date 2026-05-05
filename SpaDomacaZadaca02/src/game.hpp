@@ -249,14 +249,14 @@ private:
 
 		// ----- Dynamic text test animations -----;
 		auto &dynamic_text = dynamic_text_objects[0];
-		auto *dnm_txt_ptr = &dynamic_text.get_segment(2).text;
+		auto *dnm_txt_ptr = &dynamic_text.get_segment(2);
 
 		malaise::animation::Animation text_spin_scale(*dnm_txt_ptr, true);
 
 		text_spin_scale.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
 		text_spin_scale.copy_first_keyframe_to_last(1.5f);
 
-		dnm_txt_ptr = &dynamic_text.get_segment(6).text;
+		dnm_txt_ptr = &dynamic_text.get_segment(6);
 		malaise::animation::Animation text_spin_fast(*dnm_txt_ptr, true);
 		text_spin_fast.put_keyframe(.1f, {}, -360.f, {1.f, 1.f}, malaise::animation::Interpolation::LINEAR);
 		text_spin_fast.copy_first_keyframe_to_last(.1f);

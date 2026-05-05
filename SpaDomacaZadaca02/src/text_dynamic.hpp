@@ -6,15 +6,6 @@
 
 namespace malaise::text {
 
-struct TextSegment {
-	sf::Text text;
-	size_t start_index = 0;
-	size_t length = 0;
-
-	void center_text_origin();
-	void text_origin_to_corner();
-};
-
 class TextDynamic {
 public:
 	TextDynamic(const sf::Font &font_, sf::Text base_ = {});
@@ -23,7 +14,7 @@ public:
 
 	void set_position(sf::Vector2f vec);
 
-	TextSegment& get_segment(size_t index);
+	sf::Text& get_segment(size_t index);
 
 	void push_text_segment(const sf::Text& text);
 
@@ -39,7 +30,7 @@ private:
 	sf::Font font;
 	sf::Text base; // Reference for construction of text objects
 
-	std::vector<TextSegment> segments;
+	std::vector<sf::Text> segments;
 	sf::Vector2f position{};
 };
 
