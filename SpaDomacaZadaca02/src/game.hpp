@@ -199,19 +199,16 @@ private:
 	}
 
 	void init_buttons(void) {
-		malaise::Button exit_button({100, 0}, 100, 80, [&] {
-			stop();
-		});
-
-		malaise::Button paint_button({WINDOW_WIDTH - 64, WINDOW_HEIGHT / 2.f}, 64, 64, [&] {
-			// cursor.type = malaise::Cursor::Type::PAINT_BRUSH;
-			}, RESOURCE_DIRECTORY + "sprites/Sprite-0001.png"
-		);
-
 		buttons.reserve(16);
 
-		buttons.push_back(exit_button);
-		buttons.push_back(paint_button);
+		// buttons.emplace_back(sf::Vector2f(100, 0), 100, 80, [&] {
+		// 	stop();
+		// });
+
+		// buttons.emplace_back(sf::Vector2f(WINDOW_WIDTH - 64, WINDOW_HEIGHT / 2.f), 64, 64, [&] {
+		// 	// cursor.type = malaise::Cursor::Type::PAINT_BRUSH;
+		// 	}, RESOURCE_DIRECTORY + "sprites/Sprite-0001.png"
+		// );
 	}
 
 	void init_text_boxes() {
@@ -231,19 +228,38 @@ private:
 	void init_dynamic_text(void) {
 		dynamic_text_objects.reserve(16);
 
+		auto &initial_welcome_text = push_scrollable_text(main_font);
+		initial_welcome_text.set_position({
+			static_cast<float>(window.getSize().x / 2.f - 100),
+			static_cast<float>(window.getSize().y - 100)
+		});
+		initial_welcome_text.push_strings("Welcome to ", "\nConway's Game of Life");
+		
+		auto cgol_text = initial_welcome_text.get_segment(1);
+
+		malaise::animation::Animation cgol_text_idle(cgol_text);
+		cgol_text_idle.copy_first_keyframe_to_last(2.f);
+
+		malaise::animation::Animation cgol_text_pop(cgol_text, true);
+		cgol_text_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
+		cgol_text_pop.copy_first_keyframe_to_last(1.5f);
+
+		animation_matrix.push_and_create(cgol_text_idle);
+		animation_matrix.push_current(cgol_text_pop);
+
 		// dynamic_text_objects.emplace_back(main_font);
 		// malaise::text::TextDynamic &dynamic_text = dynamic_text_objects.back();
 
 		// dynamic_text.set_position({400, 200});
 		// dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
 
-		// scrollable_text_objects.push(main_font);
+		// scrollable_text_objects.emplace(main_font);
 		// inputs_locked = true; // with pushed scrollable text_object
 		// malaise::text::TextDynamic &text_box1 = scrollable_text_objects.back();
 		// text_box1.set_position({0, 150});
 		// text_box1.push_strings("First text box...");
 
-		// scrollable_text_objects.push(main_font);
+		// scrollable_text_objects.emplace(main_font);
 		// malaise::text::TextDynamic &text_box2 = scrollable_text_objects.back();
 		// text_box2.set_position({0, 300});
 		// text_box2.push_strings("Second text box!");
@@ -314,11 +330,10 @@ private:
 		// 	scrollable_text_objects.pop();
 		// });
 
-		// event_manager.emplace_event(3.f, [&]() {
-		// 	dynamic_text_objects.emplace_back(mario_font);
-		// 	dynamic_text_objects.back().push_strings("HELLO!!!!! Events are working. :)");
-		// 	dynamic_text_objects.back().set_position({200, 600});
-		// });
+		event_manager.emplace_event(6.7f, [&]() {
+			auto &txt = scrollable_text_objects.front();
+			txt.push_strings("\n\n(press Enter to start)");
+		});
 
 		// event_manager.emplace_event(2.f, [&]() {
 		// 	text_boxes.pop_back();
@@ -327,7 +342,7 @@ private:
 
 	void update_simulation() {
 		while (physics_accumulator >= physics_timestep) { // Limit framerate to physics tickrate
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+			if (!inputs_locked && sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
 				simulation.step();
 			}
 			physics_accumulator -= physics_timestep;
@@ -490,11 +505,7 @@ private:
 							stop();
 							break;
 						case sf::Keyboard::Enter:
-							if (!scrollable_text_objects.empty()) {
-								scrollable_text_objects.pop();
-								if (scrollable_text_objects.empty())
-									inputs_locked = false;
-							}
+							advance_scrollable_text();
 						default:
 							break;
 					}
@@ -559,6 +570,25 @@ private:
 
 			render_accumulator = sf::Time::Zero;
 		}
+	}
+
+	inline void advance_scrollable_text(void) {
+		if (!scrollable_text_objects.empty()) {
+			scrollable_text_objects.pop();
+			if (scrollable_text_objects.empty())
+				inputs_locked = false;
+		}
+	}
+
+	/*
+	 * Helper function to push scrollable text to the screen
+	 * and lock input until it's finished. Also returns the pushed
+	 * malaise::text::TextDynamic object for convenience.
+	 */
+	inline text::TextDynamic& push_scrollable_text(const sf::Font &font) {
+		scrollable_text_objects.emplace(font);
+		inputs_locked = true; // lock inputs because scrollable text is displayed
+		return scrollable_text_objects.front();
 	}
 };
 
