@@ -52,7 +52,7 @@ void TextDynamic::draw(sf::RenderTarget &target) {
 	float prev_height = 0.f;
 
 	for (auto& segment : segments) {
-		if (!segment) continue;
+		if (!segment) break;
 		sf::Vector2f origin_frac = {
 			segment->getOrigin().x ? segment->getLocalBounds().width  / segment->getOrigin().x : 0.f,
 			segment->getOrigin().y ? segment->getLocalBounds().height / segment->getOrigin().y : 0.f,

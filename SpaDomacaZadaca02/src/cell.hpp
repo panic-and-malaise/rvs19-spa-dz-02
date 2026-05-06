@@ -19,7 +19,7 @@ public:
 		}
 	};
 
-	friend class CellHash;
+	friend struct CellHash;
 
 	Cell() = default;
 	Cell(const int32_t x_, const int32_t y_, sf::Color color_ = sf::Color::White);

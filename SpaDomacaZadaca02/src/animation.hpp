@@ -51,7 +51,7 @@ inline float apply_interpolation(float t, animation::Interpolation type) {
 
 // Have to declare here to avoid circular include hell
 struct Keyframe {
-	Keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_ = { 1.f, 1.f }, const Interpolation interpolation_ = Interpolation::LINEAR)
+	Keyframe(const float start_time_, sf::Vector2f pos_, const float rotation_, sf::Vector2f scale_ = { 1.f, 1.f }, const Interpolation interpolation_ = Interpolation::LINEAR)
 		: position(std::move(pos_)), rotation(rotation_), scale(std::move(scale_)), start_time(start_time_), interpolation(interpolation_) {}
 
 	float start_time = 0.f;

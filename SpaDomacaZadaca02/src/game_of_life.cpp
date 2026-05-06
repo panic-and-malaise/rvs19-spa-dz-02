@@ -29,6 +29,12 @@ game_of_life::game_of_life(uint32_t seed_, size_t starting_cells_, size_t enclos
 game_of_life::game_of_life() : game_of_life(std::random_device{}(), STARTING_CELL_NUMBER, DEFAULT_ENCLOSURE_SIZE) {}
 
 void game_of_life::step() {
+	/*cells_active = cells_active_next;
+	cells_active_next.clear();
+
+	cells_potential = cells_potential_next;
+	cells_potential_next = cells_active;*/
+
 	cells_active = std::move(cells_active_next);
 	cells_active_next.clear();
 	cells_active_next.reserve(cells_active.size());

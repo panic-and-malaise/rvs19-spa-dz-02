@@ -3,6 +3,7 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Text.hpp>
+
 #include <memory>
 
 namespace malaise::text {

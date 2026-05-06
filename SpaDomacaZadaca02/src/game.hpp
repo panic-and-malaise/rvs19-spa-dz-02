@@ -1,7 +1,6 @@
 #ifndef MALAISE_GAME_HPP
 #define MALAISE_GAME_HPP
 
-#include <SFML/Window/Keyboard.hpp>
 #include <ctime>
 #include <filesystem>
 #include <memory>
@@ -9,12 +8,14 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
+#include <SFML/Window/Keyboard.hpp>
 
 #include "animation.hpp"
 #include "animation_matrix.hpp"
@@ -150,12 +151,12 @@ private:
 	std::queue<malaise::text::TextDynamic> scrollable_text_objects;
 
 	std::vector<malaise::Button> buttons;
-	std::unordered_map<std::string, malaise::Pattern> patterns;
+	std::unordered_map<std::string, std::shared_ptr<malaise::Pattern>> patterns;
 
 	malaise::events::EventManager event_manager;
 
 	// ---------- CURRENT POINTERS ----------;
-	malaise::Pattern *pattern_selected = nullptr;
+	std::shared_ptr < malaise::Pattern> pattern_selected = nullptr;
 	malaise::Cursor cursor{};
 
 
@@ -231,7 +232,7 @@ private:
 		auto &initial_welcome_text = push_scrollable_text(main_font);
 		initial_welcome_text.set_position({
 			static_cast<float>(window.getSize().x / 2.f - 100),
-			static_cast<float>(window.getSize().y - 100)
+			static_cast<float>(window.getSize().y - 200)
 		});
 		initial_welcome_text.push_strings("Welcome to ", "\nConway's Game of Life");
 		
@@ -246,6 +247,14 @@ private:
 
 		animation_matrix.push_and_create(cgol_text_idle);
 		animation_matrix.push_current(cgol_text_pop);
+
+		/*malaise::text::TextDynamic controls_explanation(main_font);
+		controls_explanation.set_position({
+			static_cast<float>(100),
+			static_cast<float>(100)
+			});
+		controls_explanation.push_strings("Use ", "MIDDLE MOUSE", " to pan / ", "SCROLL_WHEEL", " to zoom");
+		scrollable_text_objects.push(controls_explanation);*/
 
 		// dynamic_text_objects.emplace_back(main_font);
 		// malaise::text::TextDynamic &dynamic_text = dynamic_text_objects.back();
@@ -317,7 +326,7 @@ private:
 
 		patterns = malaise::Pattern::load_patterns_from_folder(RESOURCE_DIRECTORY + "patterns/");
 
-		pattern_selected = &patterns.at("loafer"); // a fun and simple glider that I like :)
+		pattern_selected = patterns.at("loafer"); // a fun and simple glider that I like :)
 	}
 
 	void init_cursor(void) {
@@ -330,7 +339,8 @@ private:
 		// 	scrollable_text_objects.pop();
 		// });
 
-		event_manager.emplace_event(6.7f, [&]() {
+		event_manager.emplace_event(3.7f, [&]() {
+			if (scrollable_text_objects.empty()) return;
 			auto &txt = scrollable_text_objects.front();
 			txt.push_strings("\n\n(press Enter to start)");
 		});
@@ -482,7 +492,7 @@ private:
 			for (int dy = -BRUSH_SIZE / 2; dy <= BRUSH_SIZE / 2; dy++) {
 				for (int dx = -BRUSH_SIZE / 2; dx <= BRUSH_SIZE / 2; dx++) {
 					math::Vec2i cell = { center.x + dx, center.y + dy };
-					simulation.insert_cell({cell, sf::Color::Red});
+					simulation.insert_cell({cell});
 				}
 			}
 		}
@@ -506,6 +516,24 @@ private:
 							break;
 						case sf::Keyboard::Enter:
 							advance_scrollable_text();
+							break;
+						case sf::Keyboard::Left:
+						case sf::Keyboard::Right: {
+							if (inputs_locked) break;
+							for (auto it = patterns.begin(); it != patterns.end(); ++it) {
+								if (it->second == pattern_selected) {
+									auto next_it = it;
+									next_it++;
+									if (next_it == patterns.end()) next_it = patterns.begin();
+									if (next_it->second) {
+										std::cout << next_it->first << "\n";
+										pattern_selected = next_it->second;
+										break;
+									}
+								}
+							}
+							break;
+						}
 						default:
 							break;
 					}

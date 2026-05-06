@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -22,7 +23,7 @@ public:
 	std::vector<Cell> get_cells() const;
 
 	static Pattern load_from_rle(const std::string& filename);
-	static std::unordered_map<std::string, Pattern> load_patterns_from_folder(const std::string &base_path);
+	static std::unordered_map<std::string, std::shared_ptr<Pattern>> load_patterns_from_folder(const std::string &base_path);
 
 	static void print_rle_file(const std::string &filename);
 
