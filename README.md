@@ -1,4 +1,4 @@
-# Conway's Game of Life (Malaise Edition)
+# Conway's Game of Life (Malaise Edition!)
 
 A simple, real-time, sparse-encoded Game of Life implementation written in C++, using SFML 2.6.2 for rendering!
 
