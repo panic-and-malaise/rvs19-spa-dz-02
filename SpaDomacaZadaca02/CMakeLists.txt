@@ -23,11 +23,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address,undefined")
 endif()
 
-# Fetch and configure SFML version 2.5.1
+# Fetch and configure SFML version 2.6.2
 include(FetchContent)
 FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
-    GIT_TAG 2.5.1
+    GIT_TAG 2.6.2
     GIT_SHALLOW ON
     EXCLUDE_FROM_ALL
     SYSTEM
@@ -36,6 +36,7 @@ FetchContent_MakeAvailable(SFML)
 
 file(GLOB PROJECT_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
+file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/resources/)
 file(COPY ${CMAKE_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR})
 
 # --- Main executable ---

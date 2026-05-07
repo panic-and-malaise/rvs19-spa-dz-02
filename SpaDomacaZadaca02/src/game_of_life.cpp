@@ -1,4 +1,5 @@
 #include "game_of_life.hpp"
+#include "vec2i.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -107,6 +108,18 @@ void game_of_life::insert_cell(const Cell& cell) {
 	cells_active.insert(cell);
 	cells_active_next.insert(cell);
 	update_cell_neighbors(cell);
+}
+
+void game_of_life::remove_cell_at(const math::Vec2i pos) {
+	auto cell_to_remove = cells_active.find(pos);
+	auto cell_next_to_remove = cells_active_next.find(pos);
+
+	if (cell_to_remove != cells_active.end())
+		cells_active.erase(cell_to_remove);
+	if (cell_next_to_remove != cells_active_next.end()) {
+		cells_active_next.erase(cell_next_to_remove);
+		update_cell_neighbors(*cell_next_to_remove);
+	}
 }
 
 void game_of_life::stamp_pattern(const Pattern& p, Cell origin) {

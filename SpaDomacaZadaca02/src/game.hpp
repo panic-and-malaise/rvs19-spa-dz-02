@@ -90,6 +90,7 @@ public:
 
 private:
 	bool running = true;
+	bool physics_ticking = false;
 	bool inputs_locked = false;
 
 	// ---------- SFML WINDOW & VIEWS ----------;
@@ -157,7 +158,7 @@ private:
 
 	// ---------- CURRENT POINTERS ----------;
 	std::shared_ptr<malaise::Pattern> pattern_selected = nullptr;
-	malaise::Cursor cursor{};
+	malaise::Cursor cursor;
 
 
 	// --------------- PRIVATE METHODS ---------------;
@@ -169,6 +170,10 @@ private:
 	}
 
 	void init_simulation(int argc, char *argv[]) {
+		DEBUG_PRINT("\n\n----- Please compile in Release mode for best perfomance!!! -----");
+		DEBUG_PRINT("\n----- Please compile in Release mode for best perfomance!!! -----");
+		DEBUG_PRINT("\n----- Please compile in Release mode for best perfomance!!! -----\n\n");
+
 		// ----- SEED AND SIMULATION -----
 		uint32_t seed = rng();
 		size_t cells = malaise::game_of_life::STARTING_CELL_NUMBER;
@@ -202,14 +207,10 @@ private:
 	void init_buttons(void) {
 		buttons.reserve(16);
 
+		// Example of how to instantiate a button
 		// buttons.emplace_back(sf::Vector2f(100, 0), 100, 80, [&] {
 		// 	stop();
 		// });
-
-		// buttons.emplace_back(sf::Vector2f(WINDOW_WIDTH - 64, WINDOW_HEIGHT / 2.f), 64, 64, [&] {
-		// 	// cursor.type = malaise::Cursor::Type::PAINT_BRUSH;
-		// 	}, RESOURCE_DIRECTORY + "sprites/Sprite-0001.png"
-		// );
 	}
 
 	void init_text_boxes() {
@@ -231,8 +232,8 @@ private:
 
 		auto initial_welcome_text = push_scrollable_text(main_font);
 		initial_welcome_text->set_position({
-			static_cast<float>(window.getSize().x / 2.f - 100),
-			static_cast<float>(window.getSize().y - 200)
+			static_cast<float>(WINDOW_WIDTH / 2.f - 100),
+			static_cast<float>(WINDOW_HEIGHT - 200)
 		});
 		initial_welcome_text->push_strings("Welcome to ", "\nConway's Game of Life");
 		
@@ -254,13 +255,15 @@ private:
 
 		auto controls_explanation_2 = push_scrollable_text(main_font);
 		controls_explanation_2->set_position({
-			static_cast<float>(250),
+			static_cast<float>(230),
 			static_cast<float>(150)
 		});
-		// controls_explanation_2->push_strings("LEFT CLICK", " to paint patterns / ", "RIGHT CLICK", " to paint a 10x10 area");
-		controls_explanation_2->push_strings("LEFT CLICK", " to paint patterns");
+		controls_explanation_2->push_strings("LEFT CLICK", " to paint patterns", "\nRIGHT CLICK", " to erase a 10x10 area");
 
 		animation_matrix.push_and_create(animation::animation_idle_shake(controls_explanation_2->get_segment(0)));
+
+		animation_matrix.push_and_create(animation::animation_idle(controls_explanation_2->get_segment(2), 2.5f));
+		animation_matrix.push_current(animation::animation_idle_shake(controls_explanation_2->get_segment(2)));
 
 		auto controls_explanation_3 = push_scrollable_text(main_font);
 		controls_explanation_3->set_position({
@@ -273,17 +276,17 @@ private:
 
 		auto space_advance = push_scrollable_text(main_font);
 		space_advance->set_position({
-			static_cast<float>(window.getSize().x / 2.f - 50),
-			static_cast<float>(window.getSize().x / 2.f - 100.f)
+			static_cast<float>(WINDOW_WIDTH / 2.f - 200.f),
+			static_cast<float>(WINDOW_HEIGHT / 2.f - 100.f)
 			});
-		space_advance->push_strings("Hold ", "SPACE", " to advance");
+		space_advance->push_strings("Hold ", "SPACE", " to advance the simulation");
 
 		animation_matrix.push_and_create(animation::animation_idle_shake(space_advance->get_segment(1)));
 
 		auto have_fun = push_scrollable_text(main_font);
 		have_fun->set_position({
-			static_cast<float>(window.getSize().x / 2.f - 50),
-			static_cast<float>(window.getSize().x / 2.f - 100.f)
+			static_cast<float>(WINDOW_WIDTH / 2.f - 50),
+			static_cast<float>(WINDOW_HEIGHT / 2.f - 100.f)
 		});
 		have_fun->push_strings("Have fun", ":) !!!");
 
@@ -301,15 +304,10 @@ private:
 	}
 
 	void init_cursor(void) {
-		cursor.type = malaise::Cursor::Type::DOT;
-		cursor.size = 1;
+		cursor = {};
 	}
 
 	void init_events(void) {
-		// event_manager.emplace_event(2.f, [&]() {
-		// 	scrollable_text_objects.pop();
-		// });
-
 		event_manager.emplace_event(3.7f, [&]() {
 			if (scrollable_text_objects.empty() || scrollable_text_objects.size() < 6) return;
 			auto txt = scrollable_text_objects.front();
@@ -321,13 +319,13 @@ private:
 		});
 
 		event_manager.emplace_event(6.f, [&]() {
-			pattern_selected = patterns.at("dot");
+			pattern_selected = patterns.at("0000_dot");
 		});
 	}
 
 	void update_simulation() {
 		while (physics_accumulator >= physics_timestep) { // Limit framerate to physics tickrate
-			if (!inputs_locked && sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+			if (physics_ticking) {
 				simulation.step();
 			}
 			physics_accumulator -= physics_timestep;
@@ -361,10 +359,10 @@ private:
 		sf::Vector2i hover_mouse_pos = sf::Mouse::getPosition(window);
 		sf::Vector2f hover_world_pos = window.mapPixelToCoords(hover_mouse_pos);
 
-		if (!pattern_selected)
-			cursor.render(window, util::float_vector_to_integer(hover_world_pos));
-		else
+		if (pattern_selected && cursor.get_type() != Cursor::Type::ERASER)
 			pattern_selected->render_pattern(window, hover_world_pos);
+
+		cursor.render(window, util::float_vector_to_integer(hover_world_pos));
 	}
 
 	void render(void) {
@@ -440,22 +438,28 @@ private:
 
 	void handle_realtime_inputs(void) {
 		if (inputs_locked) return;
+
+		// -------------------- SIMULATION TOGGLE --------------------;
+		physics_ticking = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
+
 		// -------------------- CELL PAINTING --------------------;
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+			cursor.set_type(Cursor::Type::PAINT_BRUSH);
+
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
 
 			math::Vec2i center = {
 				static_cast<int32_t>(world_pos.x),
 				static_cast<int32_t>(world_pos.y)
-				// static_cast<int32_t>(world_pos.x - 0.75f),
-				// static_cast<int32_t>(world_pos.y - 0.5f)
 			};
 
 			if (pattern_selected)
 				simulation.stamp_pattern(*pattern_selected, {center});
-		} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-			return; // disable temporarily
+
+		} else if (!physics_ticking && sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+			cursor.set_type(Cursor::Type::ERASER);
+
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
 
@@ -464,13 +468,15 @@ private:
 				static_cast<int32_t>(std::floor(world_pos.y))
 			};
 
-			constexpr int BRUSH_SIZE = 10;
-			for (int dy = -BRUSH_SIZE / 2; dy <= BRUSH_SIZE / 2; dy++) {
-				for (int dx = -BRUSH_SIZE / 2; dx <= BRUSH_SIZE / 2; dx++) {
+			constexpr int ERASER_SIZE = 10;
+			for (int dy = -ERASER_SIZE / 2; dy <= ERASER_SIZE / 2; dy++) {
+				for (int dx = -ERASER_SIZE / 2; dx <= ERASER_SIZE / 2; dx++) {
 					math::Vec2i cell = { center.x + dx, center.y + dy };
-					simulation.insert_cell({cell});
+					simulation.remove_cell_at(cell);
 				}
 			}
+		} else {
+			cursor.set_type(Cursor::Type::NONE);
 		}
 	}
 
@@ -508,6 +514,11 @@ private:
 								if (next->second) {
 									DEBUG_PRINT(next->first);
 									pattern_selected = next->second;
+
+									cursor.set_offset({
+										static_cast<float>(pattern_selected->get_bounds().x),
+										static_cast<float>(pattern_selected->get_bounds().y),
+									});
 								}
 							}
 							break;
@@ -527,6 +538,11 @@ private:
 								if (next->second) {
 									DEBUG_PRINT(next->first);
 									pattern_selected = next->second;
+
+									cursor.set_offset({
+										static_cast<float>(pattern_selected->get_bounds().x),
+										static_cast<float>(pattern_selected->get_bounds().y),
+									});
 								}
 							}
 							break;

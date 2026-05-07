@@ -16,6 +16,10 @@ std::vector<Cell> Pattern::get_cells() const {
 	return cells;
 }
 
+sf::Vector2u Pattern::get_bounds() const {
+	return { static_cast<unsigned int>(width), static_cast<unsigned int>(height) };
+}
+
 Pattern Pattern::load_from_rle(const std::string& filename) {
 	util::FileWrapper file(filename);
 
@@ -72,8 +76,8 @@ Pattern Pattern::load_from_rle(const std::string& filename) {
 		run_count = 0;
 	}
 
-	pattern.height = x;
-	pattern.width = y;
+	pattern.width = x;
+	pattern.height = y;
 
 	return pattern;
 }

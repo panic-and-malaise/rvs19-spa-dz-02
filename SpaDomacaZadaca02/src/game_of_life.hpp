@@ -22,6 +22,7 @@ public:
 	size_t get_starting_enclosure_size() const;
 
 	void insert_cell(const Cell& cell);
+	void remove_cell_at(const math::Vec2i pos);
 	void stamp_pattern(const Pattern& p, Cell origin);
 
 	static constexpr size_t DEFAULT_ENCLOSURE_SIZE = 100;

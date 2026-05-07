@@ -9,6 +9,7 @@
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/System/Vector2.hpp>
 
 #include "cell.hpp"
 #include "vec2i.hpp"
@@ -21,6 +22,7 @@ public:
 	Pattern(const std::string &filename);
 
 	std::vector<Cell> get_cells() const;
+	sf::Vector2u get_bounds() const;
 
 	static Pattern load_from_rle(const std::string& filename);
 	static std::map<std::string, std::shared_ptr<Pattern>> load_patterns_from_folder(const std::string &base_path);
