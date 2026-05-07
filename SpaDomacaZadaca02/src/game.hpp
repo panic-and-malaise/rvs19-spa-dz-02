@@ -102,7 +102,7 @@ private:
 	static constexpr size_t WINDOW_WIDTH = 800;
 	static constexpr size_t WINDOW_HEIGHT = 800;
 
-	static constexpr size_t REFRESH_RATE = 144;
+	static constexpr size_t REFRESH_RATE = 60;
 	static constexpr size_t PHYSICS_TICK_RATE = 20;
 
 	const std::string WINDOW_TITLE = "SPA-DZ-02";
@@ -156,7 +156,7 @@ private:
 	malaise::events::EventManager event_manager;
 
 	// ---------- CURRENT POINTERS ----------;
-	std::shared_ptr < malaise::Pattern> pattern_selected = nullptr;
+	std::shared_ptr<malaise::Pattern> pattern_selected = nullptr;
 	malaise::Cursor cursor{};
 
 
@@ -254,7 +254,7 @@ private:
 
 		auto controls_explanation_2 = push_scrollable_text(main_font);
 		controls_explanation_2->set_position({
-			static_cast<float>(300),
+			static_cast<float>(250),
 			static_cast<float>(150)
 		});
 		// controls_explanation_2->push_strings("LEFT CLICK", " to paint patterns / ", "RIGHT CLICK", " to paint a 10x10 area");
@@ -264,67 +264,34 @@ private:
 
 		auto controls_explanation_3 = push_scrollable_text(main_font);
 		controls_explanation_3->set_position({
-			static_cast<float>(140),
+			static_cast<float>(70),
 			static_cast<float>(200)
 		});
 		controls_explanation_3->push_strings("Left and right ", "ARROW KEYS", " to change selected pattern");
 
 		animation_matrix.push_and_create(animation::animation_idle_shake(controls_explanation_3->get_segment(1)));
 
+		auto space_advance = push_scrollable_text(main_font);
+		space_advance->set_position({
+			static_cast<float>(window.getSize().x / 2.f - 50),
+			static_cast<float>(window.getSize().x / 2.f - 100.f)
+			});
+		space_advance->push_strings("Hold ", "SPACE", " to advance");
+
+		animation_matrix.push_and_create(animation::animation_idle_shake(space_advance->get_segment(1)));
+
 		auto have_fun = push_scrollable_text(main_font);
 		have_fun->set_position({
-			static_cast<float>(window.getSize().x / 2.f),
+			static_cast<float>(window.getSize().x / 2.f - 50),
 			static_cast<float>(window.getSize().x / 2.f - 100.f)
 		});
-		have_fun->push_strings("Have fun", "!");
+		have_fun->push_strings("Have fun", ":) !!!");
 
 		animation_matrix.push_and_create(animation::animation_idle_pop(have_fun->get_segment(0)));
 	}
 
 	void init_animations(void) {
-		/* Create three animations, all referencing the shared_ptr for the initial "Welcome" text
-		 * 1. 
-		 */
-		// auto welcome_text = text_boxes.at(0);
-
-		// malaise::animation::Animation text_left_to_right(welcome_text, false);
-		// text_left_to_right.put_keyframe(3.f, {welcome_text->getPosition().x + 200, welcome_text->getPosition().y}, 0.f, {1.f, 1.f}, malaise::animation::Interpolation::QUADRATIC);
-
-		// malaise::animation::Animation text_idle(welcome_text, false);
-		// text_idle.put_keyframe_idle(2.f);
-
-		// malaise::animation::Animation text_idle_pop(welcome_text, true);
-		// text_idle_pop.put_keyframe(1.5f, welcome_text->getPosition(), -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
-		// text_idle_pop.copy_first_keyframe_to_last(2.f);
-
-		// animation_matrix.push_and_create(text_left_to_right);
-		// animation_matrix.push_current(text_idle);
-		// animation_matrix.push_current(text_idle_pop);
-
 		// typewriters.emplace_back(*welcome_text, "Welcome to Cellbi! :)", 10.f, "");
-
-		// // ----- Dynamic text test animations -----;
-		// auto &dynamic_text = dynamic_text_objects.back();
-		// auto dnm_txt_ptr = dynamic_text.get_segment(2); // Just so I don't continously have to type "get_segment"
-
-		// malaise::animation::Animation text_spin_scale(*dnm_txt_ptr, true);
-
-		// text_spin_scale.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
-		// text_spin_scale.copy_first_keyframe_to_last(1.5f);
-
-		// dnm_txt_ptr = dynamic_text.get_segment(6);
-		// malaise::animation::Animation text_spin_fast(*dnm_txt_ptr, true);
-		// text_spin_fast.put_keyframe(.1f, {}, -360.f, {1.f, 1.f}, malaise::animation::Interpolation::LINEAR);
-		// text_spin_fast.copy_first_keyframe_to_last(.1f);
-
-		// animation_matrix.push_and_create(text_spin_scale);
-		// animation_matrix.push_and_create(text_spin_fast);
-
-		// malaise::animation::Animation text_scroll_pop(scrollable_text_objects.front().get_segment(0), true);
-		// text_scroll_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
-		// text_scroll_pop.copy_first_keyframe_to_last(1.5f);
-		// animation_matrix.push_and_create(text_scroll_pop);
-
 	}
 
 	void init_patterns(void) {
@@ -344,16 +311,16 @@ private:
 		// });
 
 		event_manager.emplace_event(3.7f, [&]() {
-			if (scrollable_text_objects.empty()) return;
+			if (scrollable_text_objects.empty() || scrollable_text_objects.size() < 6) return;
 			auto txt = scrollable_text_objects.front();
-			txt->push_strings("\n\n(press Enter to start)");
+			txt->push_strings("\n\n(press Enter to continue)");
 		});
 
 		event_manager.emplace_event(2.f, [&]() {
 			inputs_locked = false;
 		});
 
-		event_manager.emplace_event(4.f, [&]() {
+		event_manager.emplace_event(6.f, [&]() {
 			pattern_selected = patterns.at("dot");
 		});
 	}
@@ -539,7 +506,7 @@ private:
 									next = patterns.rbegin();
 
 								if (next->second) {
-									std::cout << next->first << '\n';
+									DEBUG_PRINT(next->first);
 									pattern_selected = next->second;
 								}
 							}
@@ -558,7 +525,7 @@ private:
 									next = patterns.begin();
 
 								if (next->second) {
-									std::cout << next->first << '\n';
+									DEBUG_PRINT(next->first);
 									pattern_selected = next->second;
 								}
 							}
