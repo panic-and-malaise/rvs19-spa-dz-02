@@ -148,10 +148,10 @@ private:
 
 	std::vector<std::shared_ptr<sf::Text>> text_boxes;
 	std::vector<malaise::text::TextDynamic> dynamic_text_objects;
-	std::queue<malaise::text::TextDynamic> scrollable_text_objects;
+	std::queue<std::shared_ptr<malaise::text::TextDynamic>> scrollable_text_objects;
 
 	std::vector<malaise::Button> buttons;
-	std::unordered_map<std::string, std::shared_ptr<malaise::Pattern>> patterns;
+	std::map<std::string, std::shared_ptr<malaise::Pattern>> patterns;
 
 	malaise::events::EventManager event_manager;
 
@@ -229,50 +229,56 @@ private:
 	void init_dynamic_text(void) {
 		dynamic_text_objects.reserve(16);
 
-		auto &initial_welcome_text = push_scrollable_text(main_font);
-		initial_welcome_text.set_position({
+		auto initial_welcome_text = push_scrollable_text(main_font);
+		initial_welcome_text->set_position({
 			static_cast<float>(window.getSize().x / 2.f - 100),
 			static_cast<float>(window.getSize().y - 200)
 		});
-		initial_welcome_text.push_strings("Welcome to ", "\nConway's Game of Life");
+		initial_welcome_text->push_strings("Welcome to ", "\nConway's Game of Life");
 		
-		auto cgol_text = initial_welcome_text.get_segment(1);
+		animation_matrix.push_and_create(animation::animation_idle(initial_welcome_text->get_segment(1), 1.5f));
+		animation_matrix.push_current(animation::animation_idle_pop((initial_welcome_text->get_segment(1))));
 
-		malaise::animation::Animation cgol_text_idle(cgol_text);
-		cgol_text_idle.copy_first_keyframe_to_last(2.f);
-
-		malaise::animation::Animation cgol_text_pop(cgol_text, true);
-		cgol_text_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
-		cgol_text_pop.copy_first_keyframe_to_last(1.5f);
-
-		animation_matrix.push_and_create(cgol_text_idle);
-		animation_matrix.push_current(cgol_text_pop);
-
-		/*malaise::text::TextDynamic controls_explanation(main_font);
-		controls_explanation.set_position({
+		auto controls_explanation = push_scrollable_text(main_font);
+		controls_explanation->set_position({
 			static_cast<float>(100),
 			static_cast<float>(100)
-			});
-		controls_explanation.push_strings("Use ", "MIDDLE MOUSE", " to pan / ", "SCROLL_WHEEL", " to zoom");
-		scrollable_text_objects.push(controls_explanation);*/
+		});
+		controls_explanation->push_strings("Use ", "MIDDLE MOUSE", " to pan / ", "SCROLL WHEEL", " to zoom");
 
-		// dynamic_text_objects.emplace_back(main_font);
-		// malaise::text::TextDynamic &dynamic_text = dynamic_text_objects.back();
+		animation_matrix.push_and_create(animation::animation_idle(controls_explanation->get_segment(1)));
+		animation_matrix.push_current(animation::animation_idle_shake(controls_explanation->get_segment(1)));
 
-		// dynamic_text.set_position({400, 200});
-		// dynamic_text.push_strings("Hello ", "world!", "WELCOME", "\nHello,", "Hello :)", " testing", "\nlinethree", "\nlinefour ", "asfgubinoip[evopiouivylutcvhbiujnojikjkbjhv]", "\nlinefive");
+		animation_matrix.push_and_create(animation::animation_idle(controls_explanation->get_segment(3), 2.f));
+		animation_matrix.push_current(animation::animation_idle_shake(controls_explanation->get_segment(3)));
 
-		// scrollable_text_objects.emplace(main_font);
-		// inputs_locked = true; // with pushed scrollable text_object
-		// malaise::text::TextDynamic &text_box1 = scrollable_text_objects.back();
-		// text_box1.set_position({0, 150});
-		// text_box1.push_strings("First text box...");
+		auto controls_explanation_2 = push_scrollable_text(main_font);
+		controls_explanation_2->set_position({
+			static_cast<float>(300),
+			static_cast<float>(150)
+		});
+		// controls_explanation_2->push_strings("LEFT CLICK", " to paint patterns / ", "RIGHT CLICK", " to paint a 10x10 area");
+		controls_explanation_2->push_strings("LEFT CLICK", " to paint patterns");
 
-		// scrollable_text_objects.emplace(main_font);
-		// malaise::text::TextDynamic &text_box2 = scrollable_text_objects.back();
-		// text_box2.set_position({0, 300});
-		// text_box2.push_strings("Second text box!");
+		animation_matrix.push_and_create(animation::animation_idle_shake(controls_explanation_2->get_segment(0)));
 
+		auto controls_explanation_3 = push_scrollable_text(main_font);
+		controls_explanation_3->set_position({
+			static_cast<float>(140),
+			static_cast<float>(200)
+		});
+		controls_explanation_3->push_strings("Left and right ", "ARROW KEYS", " to change selected pattern");
+
+		animation_matrix.push_and_create(animation::animation_idle_shake(controls_explanation_3->get_segment(1)));
+
+		auto have_fun = push_scrollable_text(main_font);
+		have_fun->set_position({
+			static_cast<float>(window.getSize().x / 2.f),
+			static_cast<float>(window.getSize().x / 2.f - 100.f)
+		});
+		have_fun->push_strings("Have fun", "!");
+
+		animation_matrix.push_and_create(animation::animation_idle_pop(have_fun->get_segment(0)));
 	}
 
 	void init_animations(void) {
@@ -322,11 +328,9 @@ private:
 	}
 
 	void init_patterns(void) {
-		patterns.reserve(16);
-
 		patterns = malaise::Pattern::load_patterns_from_folder(RESOURCE_DIRECTORY + "patterns/");
 
-		pattern_selected = patterns.at("loafer"); // a fun and simple glider that I like :)
+		// pattern_selected = patterns.at("dot");
 	}
 
 	void init_cursor(void) {
@@ -341,13 +345,17 @@ private:
 
 		event_manager.emplace_event(3.7f, [&]() {
 			if (scrollable_text_objects.empty()) return;
-			auto &txt = scrollable_text_objects.front();
-			txt.push_strings("\n\n(press Enter to start)");
+			auto txt = scrollable_text_objects.front();
+			txt->push_strings("\n\n(press Enter to start)");
 		});
 
-		// event_manager.emplace_event(2.f, [&]() {
-		// 	text_boxes.pop_back();
-		// });
+		event_manager.emplace_event(2.f, [&]() {
+			inputs_locked = false;
+		});
+
+		event_manager.emplace_event(4.f, [&]() {
+			pattern_selected = patterns.at("dot");
+		});
 	}
 
 	void update_simulation() {
@@ -375,7 +383,7 @@ private:
 		}
 
 		if (!scrollable_text_objects.empty())
-			scrollable_text_objects.front().draw(window);
+			scrollable_text_objects.front()->draw(window);
 	}
 
 	void draw_world_elements(void) {
@@ -480,6 +488,7 @@ private:
 			if (pattern_selected)
 				simulation.stamp_pattern(*pattern_selected, {center});
 		} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+			return; // disable temporarily
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
 
@@ -517,19 +526,40 @@ private:
 						case sf::Keyboard::Enter:
 							advance_scrollable_text();
 							break;
-						case sf::Keyboard::Left:
+						case sf::Keyboard::Left: {
+							if (inputs_locked) break;
+							auto it = std::find_if(patterns.rbegin(), patterns.rend(), [&](const auto& p) {
+								return p.second == pattern_selected;
+							});
+
+							if (it != patterns.rend()) {
+								auto next = std::next(it);
+
+								if (next == patterns.rend())
+									next = patterns.rbegin();
+
+								if (next->second) {
+									std::cout << next->first << '\n';
+									pattern_selected = next->second;
+								}
+							}
+							break;
+						}
 						case sf::Keyboard::Right: {
 							if (inputs_locked) break;
-							for (auto it = patterns.begin(); it != patterns.end(); ++it) {
-								if (it->second == pattern_selected) {
-									auto next_it = it;
-									next_it++;
-									if (next_it == patterns.end()) next_it = patterns.begin();
-									if (next_it->second) {
-										std::cout << next_it->first << "\n";
-										pattern_selected = next_it->second;
-										break;
-									}
+							auto it = std::find_if(patterns.begin(), patterns.end(), [&](const auto& p) {
+								return p.second == pattern_selected;
+							});
+
+							if (it != patterns.end()) {
+								auto next = std::next(it);
+
+								if (next == patterns.end())
+									next = patterns.begin();
+
+								if (next->second) {
+									std::cout << next->first << '\n';
+									pattern_selected = next->second;
 								}
 							}
 							break;
@@ -613,10 +643,11 @@ private:
 	 * and lock input until it's finished. Also returns the pushed
 	 * malaise::text::TextDynamic object for convenience.
 	 */
-	inline text::TextDynamic& push_scrollable_text(const sf::Font &font) {
-		scrollable_text_objects.emplace(font);
+	inline std::shared_ptr<text::TextDynamic> push_scrollable_text(const sf::Font &font) {
+		auto scrollable = std::make_shared<text::TextDynamic>(font);
+		scrollable_text_objects.push(scrollable);
 		inputs_locked = true; // lock inputs because scrollable text is displayed
-		return scrollable_text_objects.front();
+		return scrollable;
 	}
 };
 

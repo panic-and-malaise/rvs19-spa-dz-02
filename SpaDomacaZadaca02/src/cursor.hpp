@@ -25,9 +25,9 @@ public:
 		sf::Vector2f rounded_pos = { static_cast<float>(position.x), static_cast<float>(position.y) };
 		sf::Vector2f centered_pos = { rounded_pos.x - (size / 2.0f), rounded_pos.y - (size / 2.0f) };
 
-		static sf::Texture pct;
-		pct.loadFromFile("sprites/paint_cursor.png");
-		static sf::Sprite paint_brush_sprite(pct);
+		// static sf::Texture pct;
+		// pct.loadFromFile("resources/sprites/paint_cursor.png");
+		// static sf::Sprite paint_brush_sprite(pct);
 
 		switch (type) {
 			case Type::DOT: {
@@ -40,8 +40,8 @@ public:
 			case Type::PENCIL:
 				break;
 			case Type::PAINT_BRUSH:
-				paint_brush_sprite.setPosition({ centered_pos.x + 12.f, centered_pos.y + 12.f });
-				target.draw(paint_brush_sprite);
+				// paint_brush_sprite.setPosition({ centered_pos.x + 12.f, centered_pos.y + 12.f });
+				// target.draw(paint_brush_sprite);
 				break;
 			case Type::SQUARE_BRUSH: {
 				sf::RectangleShape square({static_cast<float>(size), static_cast<float>(size)});

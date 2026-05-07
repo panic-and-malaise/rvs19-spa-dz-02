@@ -78,8 +78,8 @@ Pattern Pattern::load_from_rle(const std::string& filename) {
 	return pattern;
 }
 
-std::unordered_map<std::string, std::shared_ptr<Pattern>> Pattern::load_patterns_from_folder(const std::string& base_path) {
-	std::unordered_map<std::string, std::shared_ptr<Pattern>> patterns;
+std::map<std::string, std::shared_ptr<Pattern>> Pattern::load_patterns_from_folder(const std::string& base_path) {
+	std::map<std::string, std::shared_ptr<Pattern>> patterns;
 
 	DEBUG_PRINT("Path \"" << base_path << "\":");
 

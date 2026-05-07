@@ -1,8 +1,8 @@
 #ifndef MALAISE_PATTERN_HPP
 #define MALAISE_PATTERN_HPP
 
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include <memory>
 
@@ -23,7 +23,7 @@ public:
 	std::vector<Cell> get_cells() const;
 
 	static Pattern load_from_rle(const std::string& filename);
-	static std::unordered_map<std::string, std::shared_ptr<Pattern>> load_patterns_from_folder(const std::string &base_path);
+	static std::map<std::string, std::shared_ptr<Pattern>> load_patterns_from_folder(const std::string &base_path);
 
 	static void print_rle_file(const std::string &filename);
 

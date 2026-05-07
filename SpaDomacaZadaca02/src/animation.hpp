@@ -1,6 +1,7 @@
 #ifndef MALAISE_ANIMATION_HPP
 #define MALAISE_ANIMATION_HPP
 
+#include "text_dynamic.hpp"
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -132,6 +133,27 @@ private:
 	bool finished = false;
 	bool looping = false;
 };
+
+inline Animation animation_idle(std::shared_ptr<sf::Transformable> transformable, const float duration = 1.5f) {
+	Animation idle(transformable);
+	idle.copy_first_keyframe_to_last(duration);
+	return idle;
+}
+
+inline Animation animation_idle_pop(std::shared_ptr<sf::Transformable> transformable) {
+	Animation idle_pop(transformable, true);
+	idle_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
+	idle_pop.copy_first_keyframe_to_last(1.5f);
+	return idle_pop;
+}
+
+inline Animation animation_idle_shake(std::shared_ptr<sf::Transformable> transformable) {
+	Animation idle_pop(transformable, true);
+	idle_pop.copy_first_keyframe_to_last(.5f);
+	idle_pop.put_keyframe(1.f, {}, -10.f, {1.1f, 1.1f}, malaise::animation::Interpolation::EASE_IN_OUT);
+	idle_pop.copy_first_keyframe_to_last(1.5f);
+	return idle_pop;
+}
 
 }
 
