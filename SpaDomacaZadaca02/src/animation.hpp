@@ -10,6 +10,7 @@
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -52,13 +53,14 @@ inline float apply_interpolation(float t, animation::Interpolation type) {
 
 // Have to declare here to avoid circular include hell
 struct Keyframe {
-	Keyframe(const float start_time_, sf::Vector2f pos_, const float rotation_, sf::Vector2f scale_ = { 1.f, 1.f }, const Interpolation interpolation_ = Interpolation::LINEAR)
-		: position(std::move(pos_)), rotation(rotation_), scale(std::move(scale_)), start_time(start_time_), interpolation(interpolation_) {}
+	Keyframe(const float start_time_, sf::Vector2f pos_, const float rotation_, sf::Vector2f scale_ = { 1.f, 1.f }, const uint8_t alpha_ = 255, const Interpolation interpolation_ = Interpolation::LINEAR)
+		: position(std::move(pos_)), rotation(rotation_), scale(std::move(scale_)), start_time(start_time_), alpha(alpha_), interpolation(interpolation_) {}
 
 	float start_time = 0.f;
 	float rotation = 0.f;
 	sf::Vector2f position{};
 	sf::Vector2f scale{};
+	uint8_t alpha = 255;
 	Interpolation interpolation = Interpolation::LINEAR;
 };
 
@@ -95,7 +97,7 @@ public:
 	bool expired() const;
 
 	void put_keyframe(Keyframe keyframe);
-	void put_keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_ = { 1.f, 1.f }, const Interpolation interpolation_ = Interpolation::LINEAR);
+	void put_keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_ = { 1.f, 1.f }, const uint8_t alpha_ = 255, const Interpolation interpolation_ = Interpolation::LINEAR);
 	void put_keyframe_idle(const float start_time_);
 
 	/*
@@ -142,7 +144,7 @@ inline Animation animation_idle(std::shared_ptr<sf::Transformable> transformable
 
 inline Animation animation_idle_pop(std::shared_ptr<sf::Transformable> transformable) {
 	Animation idle_pop(transformable, true);
-	idle_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, malaise::animation::Interpolation::EASE_OUT);
+	idle_pop.put_keyframe(1.f, {}, -30.f, {2.f, 2.f}, 255, malaise::animation::Interpolation::EASE_OUT);
 	idle_pop.copy_first_keyframe_to_last(1.5f);
 	return idle_pop;
 }
@@ -150,7 +152,7 @@ inline Animation animation_idle_pop(std::shared_ptr<sf::Transformable> transform
 inline Animation animation_idle_shake(std::shared_ptr<sf::Transformable> transformable) {
 	Animation idle_pop(transformable, true);
 	idle_pop.copy_first_keyframe_to_last(.5f);
-	idle_pop.put_keyframe(1.f, {}, -10.f, {1.1f, 1.1f}, malaise::animation::Interpolation::EASE_IN_OUT);
+	idle_pop.put_keyframe(1.f, {}, -10.f, {1.1f, 1.1f}, 255, malaise::animation::Interpolation::EASE_IN_OUT);
 	idle_pop.copy_first_keyframe_to_last(1.5f);
 	return idle_pop;
 }

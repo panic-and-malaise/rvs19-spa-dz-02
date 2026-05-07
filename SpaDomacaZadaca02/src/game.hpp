@@ -1,12 +1,15 @@
 #ifndef MALAISE_GAME_HPP
 #define MALAISE_GAME_HPP
 
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <ctime>
 #include <filesystem>
 #include <memory>
 #include <queue>
 #include <random>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <iostream>
 
@@ -42,11 +45,12 @@ public:
 		init_views();
 
 		init_fonts();
-		init_text_boxes();
 		init_cursor();
+		init_sprites();
 
-		init_buttons();
+		init_text_boxes();
 		init_dynamic_text();
+		init_buttons();
 
 		init_animations();
 		init_events();
@@ -155,6 +159,9 @@ private:
 	std::map<std::string, std::shared_ptr<malaise::Pattern>> patterns;
 
 	malaise::events::EventManager event_manager;
+
+	std::unordered_map<std::string, sf::Texture> textures;
+	std::unordered_map<std::string, sf::Sprite> sprites;
 
 	// ---------- CURRENT POINTERS ----------;
 	std::shared_ptr<malaise::Pattern> pattern_selected = nullptr;
@@ -291,6 +298,21 @@ private:
 		have_fun->push_strings("Have fun", ":) !!!");
 
 		animation_matrix.push_and_create(animation::animation_idle_pop(have_fun->get_segment(0)));
+	}
+
+	void init_sprites(void) {
+		sf::Texture malaise_logo_texture;
+
+		if (malaise_logo_texture.loadFromFile(RESOURCE_DIRECTORY + "sprites/malaise_logo.png")) {
+			textures.emplace("malaise_logo", malaise_logo_texture);
+			sprites.emplace("malaise_logo", textures.at("malaise_logo"));
+
+			auto &malaise_sprite = sprites.at("malaise_logo");
+			malaise_sprite.setPosition(WINDOW_WIDTH / 2.f - 128, WINDOW_HEIGHT / 2.f - 128);
+			malaise_sprite.setColor(sf::Color(255, 255, 255, 0));
+		}
+		
+		cursor.load_sprites();
 	}
 
 	void init_animations(void) {

@@ -28,8 +28,8 @@ void anim::Animation::put_keyframe(Keyframe keyframe) {
 	keyframes.push_back(keyframe);
 }
 
-void anim::Animation::put_keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_, const Interpolation interpolation_) {
-	keyframes.emplace_back(start_time_, pos_, rotation_, scale_, interpolation_);
+void anim::Animation::put_keyframe(const float start_time_, const sf::Vector2f pos_, const float rotation_, const sf::Vector2f scale_, const uint8_t alpha_, const Interpolation interpolation_) {
+	keyframes.emplace_back(start_time_, pos_, rotation_, scale_, alpha_, interpolation_);
 }
 
 void anim::Animation::put_keyframe_idle(const float start_time_) {

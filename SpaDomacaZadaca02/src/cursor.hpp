@@ -25,7 +25,7 @@ public:
 		PATTERN,
 	};
 
-	Cursor() {
+	void load_sprites() {
 		sf::Texture paint_cursor_texture;
 		paint_cursor_texture.loadFromFile("resources/sprites/paint_cursor.png");
 		textures.emplace(Cursor::Type::PAINT_BRUSH, paint_cursor_texture);
