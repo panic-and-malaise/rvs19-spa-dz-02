@@ -569,6 +569,11 @@ private:
 							}
 							break;
 						}
+						case sf::Keyboard::Z: {
+							if (!physics_ticking)
+								simulation.undo_stamp();
+							break;
+						}
 						default:
 							break;
 					}

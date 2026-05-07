@@ -1,10 +1,12 @@
 #include "game_of_life.hpp"
 #include "vec2i.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <random>
 #include <utility>
+#include <vector>
 
 using namespace malaise;
 
@@ -123,10 +125,30 @@ void game_of_life::remove_cell_at(const math::Vec2i pos) {
 }
 
 void game_of_life::stamp_pattern(const Pattern& p, Cell origin) {
+	std::vector<math::Vec2i> undo_vector;
+
 	for (const Cell &cell : p.get_cells()) {
 		insert_cell({
 			origin.get_position().x + cell.get_position().x,
 			origin.get_position().y + cell.get_position().y
 		});
+		undo_vector.emplace_back(
+			origin.get_position().x + cell.get_position().x,
+			origin.get_position().y + cell.get_position().y
+		);
 	}
+
+	undo_history.push(std::move(undo_vector));
+}
+
+void game_of_life::undo_stamp() {
+	if (undo_history.empty()) return;
+
+	auto &undos = undo_history.top();
+
+	for (auto pos : undos) {
+		remove_cell_at(pos);
+	}
+
+	undo_history.pop();
 }

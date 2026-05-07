@@ -1,13 +1,15 @@
 #ifndef MALAISE_GAME_OF_LIFE_HPP
 #define MALAISE_GAME_OF_LIFE_HPP
 
-#include <SFML/System/Vector2.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <stack>
 #include <unordered_set>
+#include <vector>
 
 #include "cell.hpp"
 #include "pattern.hpp"
+#include "vec2i.hpp"
 
 namespace malaise {
 
@@ -25,6 +27,8 @@ public:
 	void remove_cell_at(const math::Vec2i pos);
 	void stamp_pattern(const Pattern& p, Cell origin);
 
+	void undo_stamp();
+
 	static constexpr size_t DEFAULT_ENCLOSURE_SIZE = 100;
 	static constexpr size_t STARTING_CELL_NUMBER = 2000;
 private:
@@ -33,6 +37,8 @@ private:
 
 	std::unordered_set<Cell, Cell::CellHash> cells_potential;
 	std::unordered_set<Cell, Cell::CellHash> cells_potential_next;
+
+	std::stack<std::vector<math::Vec2i>> undo_history;
 
 	uint32_t seed = 0;
 	size_t starting_cells = 0;
