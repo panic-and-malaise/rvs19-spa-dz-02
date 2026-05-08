@@ -6,6 +6,7 @@ A simple, real-time, sparse-encoded Game of Life implementation written in C++, 
 
 ![malaise presents](resources/screenshots/20260507222321%20SPA-DZ-02%20malaise%20presents.jpg)
 ![Conways Game of Life](resources/screenshots/20260507214046%20SPA-DZ-02%20Conways%20Game%20of%20Life.jpg)
+![Game of Life GIF](resources/screenshots/game_of_life.gif)
 ![Soup](resources/screenshots/20260507214125%20SPA-DZ-02%20Soup.jpg)
 ![hello, world](resources/screenshots/20260507214213%20SPA-DZ-02%20hello%20world.jpg)
 ![Eraser](resources/screenshots/20260507214258%20SPA-DZ-02%20Eraser.jpg)

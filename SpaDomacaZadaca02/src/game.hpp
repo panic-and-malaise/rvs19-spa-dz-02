@@ -501,6 +501,68 @@ private:
 			cursor.set_type(Cursor::Type::NONE);
 		}
 	}
+	
+	void handle_single_inputs(sf::Event &event) {
+		if (inputs_locked) return;
+
+		switch (event.key.code) {
+			case sf::Keyboard::Left: {
+				if (inputs_locked) break;
+				auto it = std::find_if(patterns.rbegin(), patterns.rend(), [&](const auto& p) {
+					return p.second == pattern_selected;
+				});
+
+				if (it != patterns.rend()) {
+					auto next = std::next(it);
+
+					if (next == patterns.rend())
+						next = patterns.rbegin();
+
+					if (next->second) {
+						DEBUG_PRINT(next->first);
+						pattern_selected = next->second;
+
+						cursor.set_offset({
+							static_cast<float>(pattern_selected->get_bounds().x),
+							static_cast<float>(pattern_selected->get_bounds().y),
+						});
+					}
+				}
+				break;
+			}
+			case sf::Keyboard::Right: {
+				if (inputs_locked) break;
+				auto it = std::find_if(patterns.begin(), patterns.end(), [&](const auto& p) {
+					return p.second == pattern_selected;
+				});
+
+				if (it != patterns.end()) {
+					auto next = std::next(it);
+
+					if (next == patterns.end())
+						next = patterns.begin();
+
+					if (next->second) {
+						DEBUG_PRINT(next->first);
+						pattern_selected = next->second;
+
+						cursor.set_offset({
+							static_cast<float>(pattern_selected->get_bounds().x),
+							static_cast<float>(pattern_selected->get_bounds().y),
+						});
+					}
+				}
+				break;
+			}
+			case sf::Keyboard::Z: {
+				if (!physics_ticking)
+					simulation.undo_stamp();
+				break;
+			}
+			default:
+				break;
+		}
+	}
 
 	void handle_sfml_events(void) {
 		sf::Event event;
@@ -521,60 +583,8 @@ private:
 						case sf::Keyboard::Enter:
 							advance_scrollable_text();
 							break;
-						case sf::Keyboard::Left: {
-							if (inputs_locked) break;
-							auto it = std::find_if(patterns.rbegin(), patterns.rend(), [&](const auto& p) {
-								return p.second == pattern_selected;
-							});
-
-							if (it != patterns.rend()) {
-								auto next = std::next(it);
-
-								if (next == patterns.rend())
-									next = patterns.rbegin();
-
-								if (next->second) {
-									DEBUG_PRINT(next->first);
-									pattern_selected = next->second;
-
-									cursor.set_offset({
-										static_cast<float>(pattern_selected->get_bounds().x),
-										static_cast<float>(pattern_selected->get_bounds().y),
-									});
-								}
-							}
-							break;
-						}
-						case sf::Keyboard::Right: {
-							if (inputs_locked) break;
-							auto it = std::find_if(patterns.begin(), patterns.end(), [&](const auto& p) {
-								return p.second == pattern_selected;
-							});
-
-							if (it != patterns.end()) {
-								auto next = std::next(it);
-
-								if (next == patterns.end())
-									next = patterns.begin();
-
-								if (next->second) {
-									DEBUG_PRINT(next->first);
-									pattern_selected = next->second;
-
-									cursor.set_offset({
-										static_cast<float>(pattern_selected->get_bounds().x),
-										static_cast<float>(pattern_selected->get_bounds().y),
-									});
-								}
-							}
-							break;
-						}
-						case sf::Keyboard::Z: {
-							if (!physics_ticking)
-								simulation.undo_stamp();
-							break;
-						}
 						default:
+							handle_single_inputs(event);
 							break;
 					}
 					break;
