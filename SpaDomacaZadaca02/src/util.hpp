@@ -17,8 +17,8 @@ inline sf::Vector2i float_vector_to_integer(const sf::Vector2f vf) {
 	return { static_cast<int>(vf.x), static_cast<int>(vf.y) };
 }
 
-inline sf::Vector2i integer_vector_to_float(const sf::Vector2i vi) {
-	return { vi };
+inline sf::Vector2f integer_vector_to_float(const sf::Vector2i vi) {
+	return { static_cast<float>(vi.x), static_cast<float>(vi.y) };
 }
 
 inline void center_element(sf::Transformable &element, const sf::FloatRect &bounds) {

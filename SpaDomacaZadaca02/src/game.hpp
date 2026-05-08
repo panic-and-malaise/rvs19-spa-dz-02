@@ -1,17 +1,15 @@
 #ifndef MALAISE_GAME_HPP
 #define MALAISE_GAME_HPP
 
-#include <SFML/Graphics/Color.hpp>
-#include <SFML/Graphics/Texture.hpp>
 #include <ctime>
 #include <filesystem>
+#include <iostream>
 #include <memory>
 #include <queue>
 #include <random>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <iostream>
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -19,6 +17,8 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Window.hpp>
 #include <SFML/Window/Keyboard.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 #include "animation.hpp"
 #include "animation_matrix.hpp"
@@ -37,6 +37,8 @@ class Game {
 public:
 	Game(int argc, char *argv[])
 		: rng(rd()) {
+
+		print_controls_help();
 
 		init_window();
 		init_simulation(argc, argv);
@@ -93,6 +95,7 @@ public:
 	}
 
 private:
+	// --------------- MEMBER FLAGS ---------------;
 	bool running = true;
 	bool physics_ticking = false;
 	bool inputs_locked = false;
@@ -103,7 +106,7 @@ private:
 	sf::View world_view;
 	sf::View ui_view;
 
-	// ------------ WINDOW CONSTANTS ------------;
+	// ------------ PROGRAM CONSTANTS ------------;
 	static constexpr size_t WINDOW_WIDTH = 800;
 	static constexpr size_t WINDOW_HEIGHT = 800;
 
@@ -126,7 +129,7 @@ private:
 	// ---------- GAME OF LIFE SIMULATION ----------;
 	malaise::game_of_life simulation;
 
-	// ----- CLOCKS AND COUNTERS -----;
+	// ----- CLOCKS, COUNTERS, AND TIME -----;
 	sf::Clock render_clock;
 	sf::Clock physics_clock;
 
@@ -147,7 +150,7 @@ private:
 	sf::Font main_font;
 	sf::Font mario_font;
 
-	// --------------- OBJECT VECTORS ---------------;
+	// --------------- OBJECT COLLECTIONS ---------------;
 	malaise::animation::AnimationMatrix animation_matrix;
 	std::vector<malaise::animation::Typewriter> typewriters;
 
@@ -212,7 +215,7 @@ private:
 	}
 
 	void init_buttons(void) {
-		buttons.reserve(16);
+		// buttons.reserve(16);
 
 		// Example of how to instantiate a button
 		// buttons.emplace_back(sf::Vector2f(100, 0), 100, 80, [&] {
@@ -221,17 +224,17 @@ private:
 	}
 
 	void init_text_boxes() {
-		text_boxes.reserve(16);
+		// text_boxes.reserve(16);
 
-		text_boxes.push_back(std::make_unique<sf::Text>());
-		auto welcome_text = text_boxes.back(); // 0
+		// text_boxes.push_back(std::make_unique<sf::Text>());
+		// auto welcome_text = text_boxes.back(); // 0
 
-		// No need to set string if a typewriter is going to be used
-		welcome_text->setPosition(375, 300);
-		welcome_text->setFont(mario_font);
-		welcome_text->setCharacterSize(24);
-		welcome_text->setFillColor(sf::Color::White);
-		util::center_element(*welcome_text, welcome_text->getLocalBounds());
+		// // No need to set string if a typewriter is going to be used
+		// welcome_text->setPosition(375, 300);
+		// welcome_text->setFont(mario_font);
+		// welcome_text->setCharacterSize(24);
+		// welcome_text->setFillColor(sf::Color::White);
+		// util::center_element(*welcome_text, welcome_text->getLocalBounds());
 	}
 
 	void init_dynamic_text(void) {
@@ -334,6 +337,15 @@ private:
 			if (scrollable_text_objects.empty() || scrollable_text_objects.size() < 6) return;
 			auto txt = scrollable_text_objects.front();
 			txt->push_strings("\n\n(press Enter to continue)");
+		});
+
+		// Fallback in case someone gets stuck on the second text box
+		event_manager.emplace_event(20.f, [&]() {
+			if (scrollable_text_objects.size() != 5) return;
+			auto txt = scrollable_text_objects.front();
+			txt->push_strings("\n", "\n", "(press ", "Enter", " to scroll text)");
+			animation_matrix.push_and_create(animation::animation_idle(txt->get_segment(8), .3f));
+			animation_matrix.push_current(animation::animation_idle_pop(txt->get_segment(8)));
 		});
 
 		event_manager.emplace_event(2.f, [&]() {
@@ -648,6 +660,23 @@ private:
 
 			render_accumulator = sf::Time::Zero;
 		}
+	}
+
+	void print_controls_help(void) {
+		std::stringstream help_menu{};
+
+		help_menu << "Usage: spa-dz-02 [SEED]\n\n";
+		help_menu << "Controls:\n\n";
+		help_menu << "  Space \t\t\t\t HOLD TO ADVANCE SIMULATION!\n";
+		help_menu << "  Enter \t\t\t\t advance to next text box or close text\n\n";
+		help_menu << "  Hold Middle Mouse and Drag \t\t move view\n";
+		help_menu << "  Mouse Wheel Scroll \t\t\t zoom in / out\n\n";
+		help_menu << "  Left Mouse Click \t\t\t paint with selected pattern\n";
+		help_menu << "  Right Mouse Click \t\t\t erase a 10x10 area\n";
+		help_menu << "  Left & Right Arrow Keys \t\t cycle selected pattern";
+		help_menu << "\n";
+
+		std::cout << help_menu.str();
 	}
 
 	inline void advance_scrollable_text(void) {
