@@ -24,6 +24,45 @@ namespace malaise::color {
 
 constexpr float COLOR_PI = 3.14159265358979323846;
 
+struct HSV {
+    float h = 0.f; // [0, 360)
+    float s = 0.f; // [0, 1]
+    float v = 0.f; // [0, 1]
+};
+
+inline HSV rgb_to_hsv(const sf::Color& color) {
+    float r = color.r / 255.f;
+    float g = color.g / 255.f;
+    float b = color.b / 255.f;
+
+    float max = std::max({ r, g, b });
+    float min = std::min({ r, g, b });
+    float delta = max - min;
+
+    HSV hsv{};
+
+    hsv.v = max;
+
+    if (max == 0.f)
+        hsv.s = 0.f;
+    else
+        hsv.s = delta / max;
+
+    if (delta == 0.f)
+        hsv.h = 0.f;
+    else if (max == r)
+        hsv.h = 60.f * std::fmod(((g - b) / delta), 6.f);
+    else if (max == g)
+        hsv.h = 60.f * (((b - r) / delta) + 2.f);
+    else
+        hsv.h = 60.f * (((r - g) / delta) + 4.f);
+
+    if (hsv.h < 0.f)
+        hsv.h += 360.f;
+
+    return hsv;
+}
+
 inline sf::Color hsv_to_rgb(const float hue, const float saturation, const float value) {
     float c = value * saturation;
     float x = c * (1 - std::fabs(std::fmod(hue / 60.f, 2.f) - 1));
@@ -148,12 +187,12 @@ public:
 	void draw(sf::RenderTarget &window) const;
 private:
 	sf::Vector2f position;
-	sf::RectangleShape current_color;
+	sf::RectangleShape current_color[2];
 
 	// Possible color swapping on X?
-	sf::Color colors[2] = {
-		sf::Color::White,
-		sf::Color::Black
+	malaise::color::HSV colors[2] = {
+		rgb_to_hsv(sf::Color::White),
+		rgb_to_hsv(sf::Color(127, 127, 127))
 	};
 
 	size_t size = 1;
@@ -163,6 +202,8 @@ private:
 	malaise::color::SaturationValueSquare saturation_value_square;
 
 	void update_display_color();
+	void apply_current_color_display();
+	void set_current_color();
 };
 
 }

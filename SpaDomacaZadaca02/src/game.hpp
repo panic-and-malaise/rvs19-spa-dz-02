@@ -548,6 +548,10 @@ private:
 				color_picker.is_hidden() ? color_picker.unhide() : color_picker.hide();
 				break;
 
+			case sf::Keyboard::X:
+				color_picker.swap_colors();
+				break;
+
 			default:
 				break;
 		}

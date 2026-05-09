@@ -76,7 +76,7 @@ bool ColorWheel::set_from_mouse(const sf::Vector2f& mouse_pos) {
 	float outer_radius = radius();
 	float inner_radius = outer_radius - CIRCLE_THICKNESS;
 
-	// click outside the ring
+	// if clicked outside the ring
 	if (distance < inner_radius || distance > outer_radius) return false;
 
 	float angle = std::atan2(dy, dx);
@@ -181,7 +181,12 @@ void SaturationValueSquare::set_cursor_position_sv() {
 }
 
 ColorPicker::ColorPicker(const size_t size_, const sf::Vector2f pos_) : size(size_), color_bar(size_ * 1.75f), saturation_value_square(size_) {
-	current_color.setSize({size / 4.f, size / 8.f});
+	current_color[0].setSize({size / 4.f, size / 8.f});
+	current_color[1].setSize({size / 4.f, size / 8.f});
+
+	current_color[0].setFillColor(sf::Color::White);
+	current_color[1].setFillColor(sf::Color(127, 127, 127));
+
 	set_position(pos_);
 }
 
@@ -191,14 +196,17 @@ void ColorPicker::draw(sf::RenderTarget &window) const {
 	color_bar.draw(window);
 	saturation_value_square.draw(window);
 
-	window.draw(current_color);
+	window.draw(current_color[0]);
+	window.draw(current_color[1]);
 }
 
 void ColorPicker::set_position(const sf::Vector2f position_) {
 	position = position_;
 	color_bar.set_position(position);
 	saturation_value_square.set_position(position);
-	current_color.setPosition(position + sf::Vector2f(0, size));
+
+	current_color[0].setPosition(position + sf::Vector2f(-current_color[0].getSize().x, size));
+	current_color[1].setPosition(position + sf::Vector2f(8.f, size));
 }
 
 void ColorPicker::set_hue(const float hue_) {
@@ -207,8 +215,26 @@ void ColorPicker::set_hue(const float hue_) {
 	update_display_color();
 }
 
+void ColorPicker::apply_current_color_display() {
+	auto &hsv = colors[0];
+
+	saturation_value_square.set_saturation(hsv.s);
+	saturation_value_square.set_value(hsv.v);
+	set_hue(hsv.h);
+}
+
+void ColorPicker::set_current_color() {
+	auto &hsv = colors[0];
+
+	hsv.h = color_bar.get_hue();
+	hsv.s = saturation_value_square.get_saturation();
+	hsv.v = saturation_value_square.get_value();
+}
+
 void ColorPicker::swap_colors() {
 	std::swap(colors[0], colors[1]);
+	current_color[1].setFillColor(current_color[0].getFillColor());
+	apply_current_color_display();
 }
 
 void ColorPicker::hide() {
@@ -242,5 +268,6 @@ sf::Color ColorPicker::get_color_rgb() const {
 
 void ColorPicker::update_display_color() {
 	auto rgb = hsv_to_rgb(color_bar.get_hue(), saturation_value_square.get_saturation(), saturation_value_square.get_value());
-	current_color.setFillColor(rgb);
+	current_color[0].setFillColor(rgb);
+	set_current_color();
 }
