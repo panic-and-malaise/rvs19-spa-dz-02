@@ -6,6 +6,10 @@
 
 namespace malaise::animation {
 
+/*
+ * High level abstraction for handling all animations.
+ * Splits and handles each object's animations as malaise::animation::AnimationQueues.
+ */
 class AnimationMatrix {
 public:
 	// Push to the last created animation queue

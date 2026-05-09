@@ -1,11 +1,13 @@
 #ifndef MALAISE_CELL_HPP
 #define MALAISE_CELL_HPP
 
-#include "vec2i.hpp"
+#include <unordered_set>
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
-#include <unordered_set>
+
+#include "vec2i.hpp"
 
 namespace malaise {
 

@@ -5,7 +5,7 @@ using namespace malaise::util; // For convenience, really
 FileWrapper::FileWrapper(std::string filename, std::ios::openmode openmode) : file(std::move(filename), openmode) {} // Read by default
 
 FileWrapper::~FileWrapper() {
-	file.close(); // Works because RAII
+	file.close();
 }
 
 FileWrapper::operator bool() const {

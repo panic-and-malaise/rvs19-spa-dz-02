@@ -1,7 +1,5 @@
 #include "cell.hpp"
 
-#include <unordered_set>
-
 using namespace malaise;
 
 Cell::Cell(const int32_t x_, const int32_t y_, sf::Color color_) {

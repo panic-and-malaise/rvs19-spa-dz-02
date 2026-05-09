@@ -1,14 +1,14 @@
 #ifndef MALAISE_CURSOR_HPP
 #define MALAISE_CURSOR_HPP
 
-#include <SFML/System/Vector2.hpp>
+#include <utility>
 #include <unordered_map>
 
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <utility>
 
 namespace malaise {
 

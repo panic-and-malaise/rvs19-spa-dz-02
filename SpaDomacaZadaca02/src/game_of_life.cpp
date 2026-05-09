@@ -1,12 +1,12 @@
 #include "game_of_life.hpp"
-#include "vec2i.hpp"
 
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <random>
 #include <utility>
 #include <vector>
+
+#include "vec2i.hpp"
 
 using namespace malaise;
 
@@ -118,6 +118,7 @@ void game_of_life::remove_cell_at(const math::Vec2i pos) {
 
 	if (cell_to_remove != cells_active.end())
 		cells_active.erase(cell_to_remove);
+
 	if (cell_next_to_remove != cells_active_next.end()) {
 		cells_active_next.erase(cell_next_to_remove);
 		update_cell_neighbors(*cell_next_to_remove);

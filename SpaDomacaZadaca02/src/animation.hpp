@@ -1,7 +1,11 @@
 #ifndef MALAISE_ANIMATION_HPP
 #define MALAISE_ANIMATION_HPP
 
-#include "text_dynamic.hpp"
+#include <cstdint>
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include <SFML/Graphics/Drawable.hpp>
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -9,11 +13,6 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
-
-#include <cstdint>
-#include <memory>
-#include <utility>
-#include <vector>
 
 namespace malaise::animation {
 

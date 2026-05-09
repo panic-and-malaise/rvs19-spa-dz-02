@@ -1,10 +1,10 @@
 #ifndef MALAISE_TEXT_DYNAMIC_HPP
 #define MALAISE_TEXT_DYNAMIC_HPP
 
+#include <memory>
+
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Text.hpp>
-
-#include <memory>
 
 namespace malaise::text {
 

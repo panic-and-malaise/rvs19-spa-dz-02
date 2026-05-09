@@ -1,10 +1,10 @@
 #ifndef MALAISE_VEC2I_HPP
 #define MALAISE_VEC2I_HPP
 
-#include <SFML/System/Vector2.hpp>
-
 #include <cstddef>
 #include <cstdint>
+
+#include <SFML/System/Vector2.hpp>
 
 namespace malaise::math {
 

@@ -1,8 +1,9 @@
 #ifndef MALAISE_TYPEWRITER_HPP
 #define MALAISE_TYPEWRITER_HPP
 
-#include <SFML/Graphics/Text.hpp>
 #include <string>
+
+#include <SFML/Graphics/Text.hpp>
 
 namespace malaise::animation {
 

@@ -1,8 +1,9 @@
 #ifndef MALAISE_EVENT_MANAGER_HPP
 #define MALAISE_EVENT_MANAGER_HPP
 
-#include "event.hpp"
 #include <vector>
+
+#include "event.hpp"
 
 namespace malaise::events {
 

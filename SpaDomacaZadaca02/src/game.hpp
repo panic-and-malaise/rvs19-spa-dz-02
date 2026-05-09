@@ -413,15 +413,14 @@ private:
 			if (animation_queue.front().is_finished()) // Play animations from the queue in sequence, popping when finished
 				animation_queue.pop();
 
-			if (!animation_queue.empty()) {
-				auto &current_animation = animation_queue.front();
+			if (animation_queue.empty()) continue;
 
-				if (current_animation.expired()) {
-					animation_queue.pop();
-				} else {
-					current_animation.update(delta_time); // Tick only the currently playing animation
-				}
-			}
+			auto &current_animation = animation_queue.front();
+
+			if (current_animation.expired())
+				animation_queue.pop();
+			else
+				current_animation.update(delta_time); // Tick only the currently playing animation
 
 		}
 		for (auto &typewriter : typewriters) {
@@ -434,16 +433,17 @@ private:
 	}
 
 	void handle_mouse_pan(void) {
+		if (!dragging) return;
+
 		sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
-		if (dragging) {
-			sf::Vector2f world_pos_before = window.mapPixelToCoords(lastMousePos);
-			sf::Vector2f world_pos_current = window.mapPixelToCoords(mouse_pos);
 
-			sf::Vector2f delta_position = world_pos_before - world_pos_current;
-			world_view.move(delta_position);
+		sf::Vector2f world_pos_before = window.mapPixelToCoords(lastMousePos);
+		sf::Vector2f world_pos_current = window.mapPixelToCoords(mouse_pos);
 
-			lastMousePos = mouse_pos;
-		}
+		sf::Vector2f delta_position = world_pos_before - world_pos_current;
+		world_view.move(delta_position);
+
+		lastMousePos = mouse_pos;
 	}
 
 	void handle_mouse_zoom(const float scroll_delta) {
@@ -452,10 +452,7 @@ private:
 		sf::Vector2i pixel = sf::Mouse::getPosition(window);
 		sf::Vector2f before = window.mapPixelToCoords(pixel);
 
-		if (scroll_delta > 0.f)
-			world_view.zoom(0.9f);
-		else
-			world_view.zoom(1.1f);
+		world_view.zoom(scroll_delta > 0.f ? 0.9f : 1.1f);
 
 		sf::Vector2f after = window.mapPixelToCoords(pixel);
 		world_view.move(before - after);
@@ -491,6 +488,7 @@ private:
 			if (pattern_selected)
 				simulation.stamp_pattern(*pattern_selected, {center});
 
+		// -------------------- CELL ERASING --------------------;
 		} else if (!physics_ticking && sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
 			cursor.set_type(Cursor::Type::ERASER);
 
@@ -518,62 +516,26 @@ private:
 		if (inputs_locked) return;
 
 		switch (event.key.code) {
-			case sf::Keyboard::Left: {
-				if (inputs_locked) break;
-				auto it = std::find_if(patterns.rbegin(), patterns.rend(), [&](const auto& p) {
-					return p.second == pattern_selected;
-				});
-
-				if (it != patterns.rend()) {
-					auto next = std::next(it);
-
-					if (next == patterns.rend())
-						next = patterns.rbegin();
-
-					if (next->second) {
-						DEBUG_PRINT(next->first);
-						pattern_selected = next->second;
-
-						cursor.set_offset({
-							static_cast<float>(pattern_selected->get_bounds().x),
-							static_cast<float>(pattern_selected->get_bounds().y),
-						});
-					}
-				}
+			case sf::Keyboard::Left:
+				scroll_patterns(true);
 				break;
-			}
-			case sf::Keyboard::Right: {
-				if (inputs_locked) break;
-				auto it = std::find_if(patterns.begin(), patterns.end(), [&](const auto& p) {
-					return p.second == pattern_selected;
-				});
 
-				if (it != patterns.end()) {
-					auto next = std::next(it);
-
-					if (next == patterns.end())
-						next = patterns.begin();
-
-					if (next->second) {
-						DEBUG_PRINT(next->first);
-						pattern_selected = next->second;
-
-						cursor.set_offset({
-							static_cast<float>(pattern_selected->get_bounds().x),
-							static_cast<float>(pattern_selected->get_bounds().y),
-						});
-					}
-				}
+			case sf::Keyboard::Right:
+				scroll_patterns(false);
 				break;
-			}
-			case sf::Keyboard::Z: {
+
+			case sf::Keyboard::Z:
 				if (!physics_ticking)
 					simulation.undo_stamp();
 				break;
-			}
+
 			default:
 				break;
 		}
+	}
+
+	void handle_scroll_pattern_switching(const float scroll_delta) {
+		scroll_patterns(scroll_delta > 0.f);
 	}
 
 	void handle_sfml_events(void) {
@@ -601,7 +563,10 @@ private:
 					}
 					break;
 				case sf::Event::MouseWheelScrolled: {
-					handle_mouse_zoom(event.mouseWheelScroll.delta);
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+						handle_scroll_pattern_switching(event.mouseWheelScroll.delta);
+					else
+						handle_mouse_zoom(event.mouseWheelScroll.delta);
 					break;
 				}
 				case sf::Event::MouseButtonPressed:
@@ -680,11 +645,11 @@ private:
 	}
 
 	inline void advance_scrollable_text(void) {
-		if (!scrollable_text_objects.empty()) {
-			scrollable_text_objects.pop();
-			if (scrollable_text_objects.empty())
-				inputs_locked = false;
-		}
+		if (scrollable_text_objects.empty()) return;
+
+		scrollable_text_objects.pop();
+		if (scrollable_text_objects.empty())
+			inputs_locked = false;
 	}
 
 	/*
@@ -697,6 +662,38 @@ private:
 		scrollable_text_objects.push(scrollable);
 		inputs_locked = true; // lock inputs because scrollable text is displayed
 		return scrollable;
+	}
+
+	inline void scroll_patterns(const bool reverse = false) {
+		auto scroll_in_range = [&](auto begin, auto end) { // very useful auto, lets me use both the normal and reverse iterator here
+			auto it = std::find_if(begin, end, [&](const auto& p) {
+				return p.second == pattern_selected;
+			});
+
+			if (it == end) return;
+
+			auto next = std::next(it);
+
+			if (next == end)
+				next = begin;
+
+			if (!next->second) return;
+
+			DEBUG_PRINT(next->first);
+
+			pattern_selected = next->second;
+
+			cursor.set_offset({
+				static_cast<float>(pattern_selected->get_bounds().x),
+				static_cast<float>(pattern_selected->get_bounds().y),
+			});
+		};
+
+		if (reverse)
+			scroll_in_range(patterns.rbegin(), patterns.rend());
+		else
+			scroll_in_range(patterns.begin(), patterns.end());
+
 	}
 };
 
