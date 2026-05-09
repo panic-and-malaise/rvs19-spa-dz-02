@@ -23,6 +23,7 @@
 #include "animation.hpp"
 #include "animation_matrix.hpp"
 #include "button.hpp"
+#include "color_picker.hpp"
 #include "cursor.hpp"
 #include "event_manager.hpp"
 #include "game_of_life.hpp"
@@ -169,6 +170,7 @@ private:
 	// ---------- CURRENT POINTERS ----------;
 	std::shared_ptr<malaise::Pattern> pattern_selected = nullptr;
 	malaise::Cursor cursor;
+	color::ColorPicker color_picker{128, { WINDOW_WIDTH - 128, 128 }};
 
 
 	// --------------- PRIVATE METHODS ---------------;
@@ -381,14 +383,12 @@ private:
 			txt.draw(window);
 		}
 
+		color_picker.draw(window);
+
 		if (!scrollable_text_objects.empty())
 			scrollable_text_objects.front()->draw(window);
-	}
 
-	void draw_world_elements(void) {
 		window.setView(world_view);
-
-		Cell::draw_cells(window, simulation.get_active_cells());
 
 		sf::Vector2i hover_mouse_pos = sf::Mouse::getPosition(window);
 		sf::Vector2f hover_world_pos = window.mapPixelToCoords(hover_mouse_pos);
@@ -399,11 +399,17 @@ private:
 		cursor.render(window, util::float_vector_to_integer(hover_world_pos));
 	}
 
+	void draw_world_elements(void) {
+		window.setView(world_view);
+
+		Cell::draw_cells(window, simulation.get_active_cells());
+	}
+
 	void render(void) {
 		window.clear();
 
-		draw_ui_elements();
 		draw_world_elements();
+		draw_ui_elements();
 
 		window.display();
 	}
@@ -423,6 +429,7 @@ private:
 				current_animation.update(delta_time); // Tick only the currently playing animation
 
 		}
+
 		for (auto &typewriter : typewriters) {
 			typewriter.update(delta_time);
 		}
@@ -465,6 +472,8 @@ private:
 		float old_x = world_view.getSize().x; // Attempt to maintain camera center
 		world_view.setSize(width, height);
 		world_view.zoom(old_x / width);
+
+		color_picker.set_position({ static_cast<float>(window.getSize().x - 128.f), 128.f });
 	}
 
 	void handle_realtime_inputs(void) {
@@ -475,10 +484,16 @@ private:
 
 		// -------------------- CELL PAINTING --------------------;
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-			cursor.set_type(Cursor::Type::PAINT_BRUSH);
-
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
+
+			cursor.set_type(Cursor::Type::PAINT_BRUSH);
+
+			// Don't paint if the color picker is clicked
+			if (color_picker.mouse_set_saturation_value(util::integer_vector_to_float(pixel_pos)))
+				return;
+			else if (color_picker.mouse_set_hue(util::integer_vector_to_float(pixel_pos)))
+				return;
 
 			math::Vec2i center = {
 				static_cast<int32_t>(world_pos.x),
@@ -486,14 +501,14 @@ private:
 			};
 
 			if (pattern_selected)
-				simulation.stamp_pattern(*pattern_selected, {center});
+				simulation.stamp_pattern(*pattern_selected, { center, color_picker.get_color_rgb() });
 
 		// -------------------- CELL ERASING --------------------;
 		} else if (!physics_ticking && sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-			cursor.set_type(Cursor::Type::ERASER);
-
 			sf::Vector2i pixel_pos = sf::Mouse::getPosition(window);
 			sf::Vector2f world_pos = window.mapPixelToCoords(pixel_pos);
+
+			cursor.set_type(Cursor::Type::ERASER);
 
 			math::Vec2i center = {
 				static_cast<int32_t>(std::floor(world_pos.x)),
@@ -527,6 +542,10 @@ private:
 			case sf::Keyboard::Z:
 				if (!physics_ticking)
 					simulation.undo_stamp();
+				break;
+
+			case sf::Keyboard::C:
+				color_picker.is_hidden() ? color_picker.unhide() : color_picker.hide();
 				break;
 
 			default:
