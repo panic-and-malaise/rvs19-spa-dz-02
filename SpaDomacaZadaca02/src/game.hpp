@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <sstream>
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
@@ -343,7 +344,6 @@ private:
 	}
 
 	void init_cursor(void) {
-		cursor = {};
 	}
 
 	void init_events(void) {

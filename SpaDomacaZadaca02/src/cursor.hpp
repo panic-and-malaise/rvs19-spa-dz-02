@@ -1,6 +1,7 @@
 #ifndef MALAISE_CURSOR_HPP
 #define MALAISE_CURSOR_HPP
 
+#include <filesystem>
 #include <utility>
 #include <unordered_map>
 
@@ -29,17 +30,17 @@ public:
 
 	void load_sprites() {
 		sf::Texture paint_cursor_texture;
-		paint_cursor_texture.loadFromFile("resources/sprites/paint_cursor.png");
+		paint_cursor_texture.loadFromFile(RESOURCE_DIRECTORY + "sprites/paint_cursor.png");
 		textures.emplace(Cursor::Type::PAINT_BRUSH, paint_cursor_texture);
 		sprites.emplace(Cursor::Type::PAINT_BRUSH, textures.at(Cursor::Type::PAINT_BRUSH));
 
 		sf::Texture eraser_texture;
-		eraser_texture.loadFromFile("resources/sprites/paint_eraser.png");
+		eraser_texture.loadFromFile(RESOURCE_DIRECTORY + "sprites/paint_eraser.png");
 		textures.emplace(Cursor::Type::ERASER, eraser_texture);
 		sprites.emplace(Cursor::Type::ERASER, textures.at(Cursor::Type::ERASER));
 
 		sf::Texture eyedropper_texture;
-		eyedropper_texture.loadFromFile("resources/sprites/paint_eyedropper.png");
+		eyedropper_texture.loadFromFile(RESOURCE_DIRECTORY + "sprites/paint_eyedropper.png");
 		textures.emplace(Cursor::Type::EYEDROPPER, eyedropper_texture);
 		sprites.emplace(Cursor::Type::EYEDROPPER, textures.at(Cursor::Type::EYEDROPPER));
 	}
@@ -142,6 +143,12 @@ private:
 
 	std::unordered_map<Type, sf::Texture> textures;
 	std::unordered_map<Type, sf::Sprite> sprites;
+
+	#ifdef _WIN32
+	const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "\\..\\resources\\";
+	#else
+	const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "/resources/";
+	#endif // _WIN32
 };
 
 }
