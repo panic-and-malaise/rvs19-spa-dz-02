@@ -237,6 +237,11 @@ void ColorPicker::swap_colors() {
 	apply_current_color_display();
 }
 
+void ColorPicker::set_current_color(const sf::Color color_) {
+	colors[0] = malaise::color::rgb_to_hsv(color_);
+	apply_current_color_display();
+}
+
 void ColorPicker::hide() {
 	hidden = true;
 }
@@ -251,14 +256,20 @@ bool ColorPicker::is_hidden() const {
 
 // returns whether the click was within the box's bounds
 bool ColorPicker::mouse_set_saturation_value(const sf::Vector2f mouse_pos) {
+	if (hidden) return false;
+
 	bool in_bounds = saturation_value_square.set_from_mouse(mouse_pos);
 	update_display_color();
+
 	return in_bounds;
 }
 
 bool ColorPicker::mouse_set_hue(const sf::Vector2f mouse_pos) {
+	if (hidden) return false;
+
 	bool in_bounds = color_bar.set_from_mouse(mouse_pos);
 	set_hue(color_bar.get_hue()); // update square color
+
 	return in_bounds;
 }
 

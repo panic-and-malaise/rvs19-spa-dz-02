@@ -179,6 +179,7 @@ public:
 	bool is_hidden() const;
 
 	void swap_colors();
+	void set_current_color(const sf::Color color_);
 	
 	// returns whether the click was within the box's bounds
 	bool mouse_set_saturation_value(const sf::Vector2f mouse_pos);
