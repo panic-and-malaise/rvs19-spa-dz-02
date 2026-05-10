@@ -7,32 +7,7 @@ using namespace malaise::color;
 ColorWheel::ColorWheel(const size_t size_) : size(size_) {
 	display.create(size, size, sf::Color::Transparent);
 
-	float center = size / 2.f;
-
-	float outer_radius = center;
-	float inner_radius = center - CIRCLE_THICKNESS;
-
-	for (size_t y = 0; y < size; y++) {
-		for (size_t x = 0; x < size; x++) {
-			float dx = x - center;
-			float dy = y - center;
-
-			float distance = std::sqrtf(dx * dx + dy * dy);
-
-			if (distance < inner_radius || distance > outer_radius) continue;
-
-			float angle = std::atan2(dy, dx);
-
-			float hue = angle * 180.f / color::COLOR_PI;
-
-			if (hue < 0.f)
-				hue += 360.f;
-
-			sf::Color color = hsv_to_rgb(hue, 1.f, 1.f);
-
-			display.setPixel(x, y, color);
-		}
-	}
+	generate_color_wheel_display();
 
 	texture.loadFromImage(display);
 
@@ -57,7 +32,7 @@ void ColorWheel::set_hue(const float hue_) {
 
 	// Only update cursor when a hue change occurs
 	cursor_line.setPosition(sprite.getPosition());
-	cursor_line.setRotation(hue + 90.f);
+	cursor_line.setRotation(hue + 270.f); // offset hue period to match other offsets
 }
 
 void ColorWheel::set_position(const sf::Vector2f position) {
@@ -81,7 +56,7 @@ bool ColorWheel::set_from_mouse(const sf::Vector2f& mouse_pos) {
 
 	float angle = std::atan2(dy, dx);
 
-	float new_hue = angle * 180.f / color::COLOR_PI;
+	float new_hue = angle * 180.f / util::PI + 180.f; // offset like Krita, again
 
 	if (new_hue < 0.f)
 		new_hue += 360.f;
@@ -94,6 +69,36 @@ bool ColorWheel::set_from_mouse(const sf::Vector2f& mouse_pos) {
 void ColorWheel::draw(sf::RenderTarget &window) const {
 	window.draw(sprite);
 	window.draw(cursor_line);
+}
+
+// Generate a ring shaped image with procedurally generated hues
+inline void ColorWheel::generate_color_wheel_display() {
+	float center = size / 2.f;
+
+	float outer_radius = center;
+	float inner_radius = center - CIRCLE_THICKNESS;
+
+	for (size_t y = 0; y < size; y++) {
+		for (size_t x = 0; x < size; x++) {
+			float dx = x - center;
+			float dy = y - center;
+
+			float distance = std::sqrtf(dx * dx + dy * dy);
+
+			if (distance < inner_radius || distance > outer_radius) continue;
+
+			float angle = std::atan2(dy, dx);
+
+			float hue = angle * 180.f / util::PI + 180.f; // Flip to match Krita's display
+
+			if (hue < 0.f)
+				hue += 360.f;
+
+			sf::Color color = hsv_to_rgb(hue, 1.f, 1.f);
+
+			display.setPixel(x, y, color);
+		}
+	}
 }
 
 SaturationValueSquare::SaturationValueSquare(const size_t size_) : size(size_) {

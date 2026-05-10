@@ -1,7 +1,6 @@
 #ifndef MALAISE_CURSOR_HPP
 #define MALAISE_CURSOR_HPP
 
-#include <SFML/Graphics/Color.hpp>
 #include <utility>
 #include <unordered_map>
 
@@ -10,6 +9,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 namespace malaise {
 

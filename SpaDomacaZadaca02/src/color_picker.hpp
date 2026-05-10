@@ -22,8 +22,6 @@
  */
 namespace malaise::color {
 
-constexpr float COLOR_PI = 3.14159265358979323846;
-
 struct HSV {
     float h = 0.f; // [0, 360)
     float s = 0.f; // [0, 1]
@@ -68,7 +66,7 @@ inline sf::Color hsv_to_rgb(const float hue, const float saturation, const float
     float x = c * (1 - std::fabs(std::fmod(hue / 60.f, 2.f) - 1));
     float m = value - c;
 
-    float r = 0, g = 0, b = 0;
+    float r = 0.f, g = 0.f, b = 0.f;
 
     if (hue < 60) {
         r = c;
@@ -123,7 +121,7 @@ public:
 
 	void draw(sf::RenderTarget &window) const;
 private:
-	float hue = 0.f; // 0.f -> 360.f
+	float hue = 0.f; // [0, 360]
 	size_t size = 1;
 
 	sf::RectangleShape cursor_line;
@@ -133,6 +131,8 @@ private:
 	sf::Sprite sprite;
 
 	static constexpr float CIRCLE_THICKNESS = 16.f;
+
+	inline void generate_color_wheel_display();
 };
 
 class SaturationValueSquare {
@@ -152,8 +152,8 @@ public:
 
 	void draw(sf::RenderTarget &window) const;
 private:
-	float saturation = 0.f; // 0.f -> 1.f
-	float value 	 = 1.f; // 0.f -> 1.f
+	float saturation = 0.f; // [0, 1]
+	float value 	 = 1.f; // [0, 1]
 
 	size_t size = 1;
 
