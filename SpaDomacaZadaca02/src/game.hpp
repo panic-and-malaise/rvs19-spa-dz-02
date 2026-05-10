@@ -286,6 +286,18 @@ private:
 
 		animation_matrix.push_and_create(animation::animation_idle_shake(controls_explanation_3->get_segment(1)));
 
+		auto controls_explanation_4 = push_scrollable_text(main_font);
+		controls_explanation_4->set_position({
+			static_cast<float>(200),
+			static_cast<float>(250)
+		});
+		controls_explanation_4->push_strings("Press ", "C", " to toggle the ", "COLOR SELECTOR");
+
+		animation_matrix.push_and_create(animation::animation_idle_shake(controls_explanation_4->get_segment(1)));
+
+		animation_matrix.push_and_create(animation::animation_idle(controls_explanation_4->get_segment(3), 2.5f));
+		animation_matrix.push_current(animation::animation_idle_pop(controls_explanation_4->get_segment(3)));
+
 		auto space_advance = push_scrollable_text(main_font);
 		space_advance->set_position({
 			static_cast<float>(WINDOW_WIDTH / 2.f - 200.f),
@@ -683,7 +695,7 @@ private:
 		help_menu << "  Right Mouse Click \t\t\t erase a 10x10 area\n";
 		help_menu << "  Left & Right Arrow Keys \t\t cycle selected pattern\n\n";
 
-		help_menu << "  C \t\t\t\t\t open the color selector UI\n";
+		help_menu << "  C \t\t\t\t\t toggle the color selector UI\n";
 		help_menu << "  X \t\t\t\t\t swap current color\n";
 		help_menu << "  LCtrl + Left Mouse Click \t\t use the color picker";
 		help_menu << "\n";
