@@ -127,12 +127,15 @@ void game_of_life::remove_cell_at(const math::Vec2i pos) {
 
 void game_of_life::stamp_pattern(const Pattern& p, Cell origin) {
 	std::vector<math::Vec2i> undo_vector;
+	auto color = origin.get_color();
 
 	for (const Cell &cell : p.get_cells()) {
 		insert_cell({
 			origin.get_position().x + cell.get_position().x,
-			origin.get_position().y + cell.get_position().y
+			origin.get_position().y + cell.get_position().y,
+			color
 		});
+
 		undo_vector.emplace_back(
 			origin.get_position().x + cell.get_position().x,
 			origin.get_position().y + cell.get_position().y

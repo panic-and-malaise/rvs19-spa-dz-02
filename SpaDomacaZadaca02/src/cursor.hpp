@@ -9,6 +9,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 namespace malaise {
 
@@ -23,6 +24,7 @@ public:
 		CIRCLE,
 		ERASER,
 		PATTERN,
+		EYEDROPPER,
 	};
 
 	void load_sprites() {
@@ -35,6 +37,11 @@ public:
 		eraser_texture.loadFromFile("resources/sprites/paint_eraser.png");
 		textures.emplace(Cursor::Type::ERASER, eraser_texture);
 		sprites.emplace(Cursor::Type::ERASER, textures.at(Cursor::Type::ERASER));
+
+		sf::Texture eyedropper_texture;
+		eyedropper_texture.loadFromFile("resources/sprites/paint_eyedropper.png");
+		textures.emplace(Cursor::Type::EYEDROPPER, eyedropper_texture);
+		sprites.emplace(Cursor::Type::EYEDROPPER, textures.at(Cursor::Type::EYEDROPPER));
 	}
 
 	void set_type(const Cursor::Type cursor_type) {
@@ -79,7 +86,21 @@ public:
 				target.draw(sprite);
 
 				break;
-			 }
+			}
+			case Type::EYEDROPPER: {
+				auto sprite = sprites.at(type);
+				sprite.setPosition({ centered_pos.x - 1.5f, centered_pos.y - 12.5f });
+				sprite.setColor(sf::Color(255, 255, 255, 127));
+
+				sf::RectangleShape hovered_color_rect({8, 4});
+				hovered_color_rect.setFillColor(hover_color);
+				hovered_color_rect.setPosition({ centered_pos.x + 8.f, centered_pos.y + 2.f });
+
+				target.draw(sprite);
+				target.draw(hovered_color_rect);
+
+				break;
+			}
 			case Type::SQUARE_BRUSH: {
 				sf::RectangleShape square({static_cast<float>(size), static_cast<float>(size)});
 				square.setFillColor(sf::Color(255, 255, 255, 127));
@@ -104,10 +125,20 @@ public:
 			 }
 		}
 	}
+
+	bool is_painting() const {
+		return type == Type::PAINT_BRUSH || type == Type::DOT || type == Type::PATTERN;
+	}
+
+	void set_hovered_color(const sf::Color color_) {
+		hover_color = std::move(color_);
+	}
 private:
 	Type type = Type::NONE;
 	size_t size = 1;
+
 	sf::Vector2f offset{};
+	sf::Color hover_color = sf::Color::White;
 
 	std::unordered_map<Type, sf::Texture> textures;
 	std::unordered_map<Type, sf::Sprite> sprites;

@@ -13,6 +13,8 @@
 
 namespace malaise::util {
 
+inline constexpr float PI = 3.14159265358979323846;
+
 inline sf::Vector2i float_vector_to_integer(const sf::Vector2f vf) {
 	return { static_cast<int>(vf.x), static_cast<int>(vf.y) };
 }

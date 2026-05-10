@@ -134,6 +134,7 @@
     <ClCompile Include="src\text_dynamic.cpp" />
     <ClCompile Include="src\typewriter.cpp" />
     <ClCompile Include="src\vec2i.cpp" />
+    <ClCompile Include="src\color_picker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\animation.hpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="src\typewriter.hpp" />
     <ClInclude Include="src\util.hpp" />
     <ClInclude Include="src\vec2i.hpp" />
+    <ClInclude Include="src\color_picker.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
