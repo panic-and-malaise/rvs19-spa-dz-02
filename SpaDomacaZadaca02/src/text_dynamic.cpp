@@ -1,4 +1,5 @@
 #include "text_dynamic.hpp"
+
 #include <memory>
 
 using namespace malaise::text;

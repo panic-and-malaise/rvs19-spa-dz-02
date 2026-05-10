@@ -188,9 +188,8 @@ public:
 	void draw(sf::RenderTarget &window) const;
 private:
 	sf::Vector2f position;
-	sf::RectangleShape current_color[2];
+	sf::RectangleShape current_colors[2];
 
-	// Possible color swapping on X?
 	malaise::color::HSV colors[2] = {
 		rgb_to_hsv(sf::Color::White),
 		rgb_to_hsv(sf::Color(127, 127, 127))
