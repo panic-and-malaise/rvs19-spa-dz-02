@@ -23,6 +23,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address,undefined")
 endif()
 
+# Statically link libraries for Windows build)
+set(BUILD_SHARED_LIBS OFF)
+
 # Fetch and configure SFML version 2.6.2
 include(FetchContent)
 FetchContent_Declare(SFML
@@ -51,3 +54,12 @@ target_link_libraries(
 	sfml-window
 	sfml-graphics
 )
+target_compile_features(main PRIVATE cxx_std_17)
+
+if(WIN32)
+    add_custom_command(
+        TARGET main
+        COMMENT "Copy OpenAL DLL"
+        PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${SFML_SOURCE_DIR}/extlibs/bin/$<IF:$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>,x64,x86>/openal32.dll $<TARGET_FILE_DIR:main>
+        VERBATIM)
+endif()
