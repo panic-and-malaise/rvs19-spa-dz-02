@@ -40,7 +40,7 @@ FetchContent_MakeAvailable(SFML)
 file(GLOB PROJECT_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/resources/)
-file(COPY ${CMAKE_SOURCE_DIR}/../resources DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})
 
 # --- Main executable ---
 add_executable(main Source.cpp ${PROJECT_SOURCES})

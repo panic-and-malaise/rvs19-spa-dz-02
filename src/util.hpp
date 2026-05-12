@@ -1,6 +1,9 @@
 #ifndef MALAISE_UTIL_HPP
 #define MALAISE_UTIL_HPP
 
+#include <filesystem>
+#include <string>
+
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Transformable.hpp>
 #include <SFML/System/Vector2.hpp>
@@ -12,6 +15,12 @@
 #endif
 
 namespace malaise::util {
+
+// #ifdef _WIN32
+// const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "\\..\\resources\\";
+// #else
+const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "/resources/";
+// #endif // _WIN32
 
 inline constexpr float PI = 3.14159265358979323846;
 

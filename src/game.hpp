@@ -117,13 +117,6 @@ private:
 
 	const std::string WINDOW_TITLE = "SPA-DZ-02";
 
-	// ---------- YUCKY YUCKY WINDOWS COMPATIBILITY ----------;
-	#ifdef _WIN32
-	const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "\\..\\resources\\";
-	#else
-	const std::string RESOURCE_DIRECTORY = std::filesystem::current_path().string() + "/resources/";
-	#endif // _WIN32
-
 	// ---------- RANDOM NUMBER GENERATION ----------;
 	std::random_device rd{};
 	std::mt19937 rng;
@@ -213,8 +206,8 @@ private:
 	}
 
 	void init_fonts(void) {
-		main_font.loadFromFile(RESOURCE_DIRECTORY + "fonts/" + "RetroByte.ttf");
-		mario_font.loadFromFile(RESOURCE_DIRECTORY + "fonts/" + "Mario64.ttf");
+		main_font.loadFromFile(util::RESOURCE_DIRECTORY + "fonts/" + "RetroByte.ttf");
+		mario_font.loadFromFile(util::RESOURCE_DIRECTORY + "fonts/" + "Mario64.ttf");
 	}
 
 	void init_buttons(void) {
@@ -321,7 +314,7 @@ private:
 	void init_sprites(void) {
 		sf::Texture malaise_logo_texture;
 
-		if (malaise_logo_texture.loadFromFile(RESOURCE_DIRECTORY + "sprites/malaise_logo.png")) {
+		if (malaise_logo_texture.loadFromFile(util::RESOURCE_DIRECTORY + "sprites/malaise_logo.png")) {
 			textures.emplace("malaise_logo", malaise_logo_texture);
 			sprites.emplace("malaise_logo", textures.at("malaise_logo"));
 
@@ -338,7 +331,7 @@ private:
 	}
 
 	void init_patterns(void) {
-		patterns = malaise::Pattern::load_patterns_from_folder(RESOURCE_DIRECTORY + "patterns/");
+		patterns = malaise::Pattern::load_patterns_from_folder(util::RESOURCE_DIRECTORY + "patterns/");
 
 		// pattern_selected = patterns.at("dot");
 	}
