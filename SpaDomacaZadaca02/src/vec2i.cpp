@@ -42,7 +42,7 @@ bool Vec2i::operator==(const Vec2i& v) const {
 }
 
 void Vec2i::normalize() {
-	float length = std::sqrtf(x*x + y*y);
+	float length = std::sqrt(x*x + y*y);
 
 	x /= length;
 	y /= length;

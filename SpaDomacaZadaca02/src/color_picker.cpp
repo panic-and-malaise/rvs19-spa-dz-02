@@ -83,7 +83,7 @@ inline void ColorWheel::generate_color_wheel_display() {
 			float dx = x - center;
 			float dy = y - center;
 
-			float distance = std::sqrtf(dx * dx + dy * dy);
+			float distance = std::sqrt(dx * dx + dy * dy);
 
 			if (distance < inner_radius || distance > outer_radius) continue;
 
